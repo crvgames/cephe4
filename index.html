@@ -38,6 +38,33 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             flex-wrap: wrap;
             justify-content: center;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #top-bar.hidden-panel {
+            display: none !important;
+        }
+        #panel-toggle-strip {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffeb3b;
+            padding: 4px 24px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            cursor: pointer;
+            z-index: 11;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: none;
+        }
+        #panel-toggle-strip:hover {
+            background: rgba(33, 150, 243, 0.9);
+            color: #fff;
         }
         .stats {
             font-size: 14px;
@@ -270,12 +297,15 @@
     <button class="ctrl-btn" id="btn-mute" onclick="toggleMute()">Ses: Açık</button>
     <button class="ctrl-btn" id="btn-view" onclick="toggleView()">Kamera: 1. Şahıs</button>
     <button class="ctrl-btn" id="btn-fs" onclick="toggleFullScreen()">Tam Ekran</button>
+    <button class="ctrl-btn" id="btn-hide-panel" onclick="toggleTopPanel(true)" style="background:#d32f2f;">PG</button>
 </div>
+
+<div id="panel-toggle-strip" onclick="toggleTopPanel(false)">▲ Paneli Göster</div>
 
 <div id="start-screen">
     <h1 id="screen-title">Cephede tek başına V1.3</h1>
     <div class="score-info" id="screen-score">En Yüksek Skor: <span id="start-high-score">0</span></div>
-    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • V kamera değiştir • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
+    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • V kamera değiştir • Fare Tekerleği: Silah Değiştir • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
     
     <div class="map-container">
         <button class="map-btn selected" id="map-park" onclick="setGameMap('park')">Kentleşmiş Park</button>
@@ -327,6 +357,18 @@ if (typeof THREE === 'undefined') {
     document.getElementById('start-screen').insertAdjacentHTML('afterbegin',
         '<div style="background:#b71c1c;color:#fff;padding:12px 18px;border-radius:10px;margin-bottom:16px;font-weight:bold;max-width:90%;text-align:center">3D motoru (Three.js) yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.</div>');
     throw new Error('Three.js yüklenemedi');
+}
+
+function toggleTopPanel(hide) {
+    const topBar = document.getElementById('top-bar');
+    const toggleStrip = document.getElementById('panel-toggle-strip');
+    if (hide) {
+        topBar.classList.add('hidden-panel');
+        toggleStrip.style.display = 'block';
+    } else {
+        topBar.classList.remove('hidden-panel');
+        toggleStrip.style.display = 'none';
+    }
 }
 
 const canvas = document.getElementById("gameCanvas");
@@ -1546,6 +1588,26 @@ function selectWeapon(type) {
     else player.fireRate = 200;
 }
 
+function cycleWeapon(delta) {
+    const weaponOrder = ['single', 'double', 'auto', 'minigun', 'grenade'];
+    const available = weaponOrder.filter(w => unlockedWeapons[w]);
+    if (available.length <= 1) return;
+    let idx = available.indexOf(currentWeapon);
+    if (idx === -1) idx = 0;
+    if (delta > 0) {
+        idx = (idx + 1) % available.length;
+    } else {
+        idx = (idx - 1 + available.length) % available.length;
+    }
+    selectWeapon(available[idx]);
+}
+
+window.addEventListener('wheel', e => {
+    if (!gameplayActive()) return;
+    e.preventDefault();
+    cycleWeapon(e.deltaY > 0 ? 1 : -1);
+}, { passive: false });
+
 function saveAndUnlock(key, name) {
     localStorage.setItem("cephedeGold", gold);
     localStorage.setItem("cephedeWeapons", JSON.stringify(unlockedWeapons));
@@ -1912,7 +1974,6 @@ function update() {
         if (enemies[i].hp <= 0) {
             const en = enemies[i];
             if (en.isBoss) {
-                // Sadece Dalga Modu açık değilse boss altın saçar
                 if (currentGameMode !== 'wave') {
                     for (let k = 0; k < 10; k++) {
                         const angle = (Math.PI * 2 / 10) * k;
