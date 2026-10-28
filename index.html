@@ -319,7 +319,7 @@
     <button class="weapon-btn active" id="btn-single" onclick="selectWeapon('single')">Glock</button>
     <button class="weapon-btn locked" id="btn-double" onclick="selectWeapon('double')">Desert Eagle (30🪙)</button>
     <button class="weapon-btn locked" id="btn-auto" onclick="selectWeapon('auto')">M-60 (50🪙)</button>
-    <button class="weapon-btn locked" id="btn-minigun" onclick="selectWeapon('minigun')">Minigun (130🪙)</button>
+    <button class="weapon-btn locked" id="btn-minigun" onclick="selectWeapon('minigun')">Minigun (100🪙)</button>
     <button class="weapon-btn locked" id="btn-grenade" onclick="selectWeapon('grenade')">Bomba (70🪙)</button>
     <div style="border-left: 2px solid #555; height: 25px;"></div>
     <button class="ctrl-btn" id="btn-pause" onclick="togglePause()">Durdur</button>
@@ -1656,8 +1656,8 @@ function selectWeapon(type) {
         } else return;
     }
     if (!mpActive && type === 'minigun' && !unlockedWeapons.minigun) {
-        if (gold >= 130) {
-            gold -= 130; unlockedWeapons.minigun = true;
+        if (gold >= 100) {
+            gold -= 100; unlockedWeapons.minigun = true;
             saveAndUnlock('minigun', "Minigun");
         } else return;
     }
