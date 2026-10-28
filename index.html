@@ -1779,7 +1779,7 @@ function handleShooting() {
 
 function throwGrenade() {
     const now = Date.now();
-    if (now - lastGrenadeTime < grenadeCooldown) return;
+    if (now - lastGrenadeTime < (mpActive ? MP_GRENADE_COOLDOWN : grenadeCooldown)) return;
     lastGrenadeTime = now;
 
     const gt0 = getGrenadeTarget();
@@ -1792,6 +1792,7 @@ function throwGrenade() {
     explosions.push({ x: targetX, y: targetY, radius: 70, timer: 40 });
     playExplosionSound();
     screenShakeTimer = 20;
+    if (mpActive) mpSend({ t: 'boom', x: targetX, y: targetY });
 
     enemies.forEach(en => {
         if (Math.hypot(en.x - targetX, en.y - targetY) < 70 + en.radius) {
@@ -2440,8 +2441,11 @@ window.addEventListener('blur', () => { scopeMouse = false; scopeBtnHeld = false
 const MP_WEAPONS = {
     single: { dmg: 22, rate: 250 },   // Glock
     double: { dmg: 16, rate: 380 },   // Desert Eagle (iki mermi)
-    auto:   { dmg: 7,  rate: 90 }     // M-60
+    auto:   { dmg: 7,  rate: 90 },    // M-60
+    minigun: { dmg: 3, rate: 100 },   // Minigun (4 mermi / atış)
+    grenade: { dmg: 60, rate: 200 }   // Bomba (patlama hasarı)
 };
+const MP_GRENADE_COOLDOWN = 2000;
 const MAP_NAMES = { park: 'Kentleşmiş Park', kanal: 'Kanalizasyon', sehir: 'Şehir İçi' };
 const remote = { active: false, x: 0, y: 0, tx: 0, ty: 0, angle: 0, tangle: 0, hp: 100, w: 'single', radius: 18, lastShot: 0, walk: 0, init: false };
 
@@ -2493,7 +2497,7 @@ function refreshWeaponButtons() {
         }
     });
     const gj = document.getElementById('grenade-joystick-container');
-    if (gj) gj.style.display = (unlockedWeapons.grenade && !mpActive) ? 'flex' : 'none';
+    if (gj) gj.style.display = (mpActive || unlockedWeapons.grenade) ? 'flex' : 'none';
 }
 
 function mpApplyUI() {
@@ -2663,6 +2667,19 @@ function mpOnData(d) {
             break;
         case 'h':
             playHitSound();
+            break;
+        case 'boom':
+            if (!isGameStarted || isGameOver) break;
+            explosions.push({ x: d.x, y: d.y, radius: 70, timer: 40 });
+            playExplosionSound();
+            screenShakeTimer = 20;
+            remote.lastShot = Date.now();
+            if (Math.hypot(player.x - d.x, player.y - d.y) < 70 + player.radius) {
+                player.hp -= MP_WEAPONS.grenade.dmg;
+                healthEl.textContent = Math.max(0, player.hp);
+                playHitSound();
+                mpSend({ t: 'h' });
+            }
             break;
         case 'dead':
             remote.hp = 0;
