@@ -321,6 +321,7 @@
     <button class="weapon-btn locked" id="btn-auto" onclick="selectWeapon('auto')">M-60 (50🪙)</button>
     <button class="weapon-btn locked" id="btn-minigun" onclick="selectWeapon('minigun')">Minigun (100🪙)</button>
     <button class="weapon-btn locked" id="btn-grenade" onclick="selectWeapon('grenade')">Bomba (70🪙)</button>
+    <button class="weapon-btn locked" id="btn-rpg" onclick="selectWeapon('rpg')">RPG (200🪙)</button>
     <div style="border-left: 2px solid #555; height: 25px;"></div>
     <button class="ctrl-btn" id="btn-pause" onclick="togglePause()">Durdur</button>
     <button class="ctrl-btn" id="btn-leave" onclick="mpLeave()" style="display:none;background:#b71c1c;">Ayrıl</button>
@@ -439,7 +440,7 @@ let highScore = localStorage.getItem("cephedeHighScore") ? parseInt(localStorage
 let gold = localStorage.getItem("cephedeGold") ? parseInt(localStorage.getItem("cephedeGold")) : 0;
 let unlockedWeapons = localStorage.getItem("cephedeWeapons")
     ? JSON.parse(localStorage.getItem("cephedeWeapons"))
-    : { single: true, double: false, auto: false, minigun: false, grenade: false };
+    : { single: true, double: false, auto: false, minigun: false, grenade: false, rpg: false };
 
 highScoreEl.textContent = highScore;
 startHighScoreEl.textContent = highScore;
@@ -461,6 +462,12 @@ function loadSavedData() {
     if (unlockedWeapons.grenade) {
         const btn = document.getElementById('btn-grenade');
         if (btn) { btn.textContent = "Bomba"; btn.classList.remove('locked'); }
+        const gJoy = document.getElementById('grenade-joystick-container');
+        if (gJoy) gJoy.style.display = 'flex';
+    }
+    if (unlockedWeapons.rpg) {
+        const btn = document.getElementById('btn-rpg');
+        if (btn) { btn.textContent = "RPG"; btn.classList.remove('locked'); }
         const gJoy = document.getElementById('grenade-joystick-container');
         if (gJoy) gJoy.style.display = 'flex';
     }
@@ -575,6 +582,33 @@ function playShootSound() {
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+}
+
+function playRpgWhooshSound() {
+    if (isMuted || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+    osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.6);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+}
+
+function playRpgExplosionSound() {
+    if (isMuted || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(15, audioCtx.currentTime + 0.8);
+    gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
 }
 
 let lastStepTime = 0;
@@ -932,16 +966,19 @@ function buildWeapon(type) {
     if (type === 'single') {
         part(gBox(16, 5, 4), dark, 8, 0, 8, w);
         part(gBox(5, 9, 4), dark, 2, -6, 8, w);
+        w.position.set(14, 40, 0);
     } else if (type === 'double') {
         [-13, 13].forEach(z => {
             part(gBox(16, 5, 4), dark, 8, 0, z, w);
             part(gBox(5, 9, 4), dark, 2, -6, z, w);
         });
+        w.position.set(14, 40, 0);
     } else if (type === 'auto') {
         part(gBox(30, 6, 5), dark, 12, 0, 6, w);
         part(gBox(4, 11, 5), mid, 10, -8, 6, w);
         part(gBox(9, 8, 4), dark, -8, -1, 6, w);
         part(gBox(8, 3, 3), mid, 20, 5, 6, w);
+        w.position.set(14, 40, 0);
     } else if (type === 'minigun') {
         part(gBox(14, 12, 12), mid, 2, 0, 6, w);
         [[3, 3], [3, -3], [-3, 3], [-3, -3]].forEach(p => {
@@ -949,11 +986,35 @@ function buildWeapon(type) {
             b.rotation.z = Math.PI / 2;
         });
         part(gBox(10, 10, 10), M(0x2e3b2f), -6, -8, 6, w);
+        w.position.set(14, 40, 0);
     } else if (type === 'grenade') {
         part(gSphere(5.5, 12, 9), M(0x2e5d2f), 6, 0, 7, w);
         part(gBox(3, 3, 3), mid, 6, 6, 7, w);
+        w.position.set(14, 40, 0);
+    } else if (type === 'rpg') {
+        // RPG-7 Omzunda duran tasarım
+        const green = M(0x3b4a2a);
+        const wood = M(0x5c3a21);
+        const metal = M(0x222222, { metalness: 0.8, roughness: 0.3 });
+
+        // Uzun Tüp (omuzda duracak)
+        const tube = part(gCyl(2.8, 2.8, 42, 12), green, 0, 0, 0, w);
+        tube.rotation.z = Math.PI / 2;
+
+        // Kabza
+        const grip = part(gBox(4, 10, 3), wood, -4, -8, 0, w);
+
+        // Nişangah ve detaylar
+        part(gBox(3, 4, 2), metal, 5, 5, 0, w);
+        part(gCyl(3.8, 3.8, 10, 12), wood, -8, 0, 0, w).rotation.z = Math.PI / 2; // Ahşap kabza kaplaması
+
+        // Ön huni/Ağız
+        const cone = part(gCyl(2.8, 4.5, 8, 12), metal, 18, 0, 0, w);
+        cone.rotation.z = -Math.PI / 2;
+
+        // Omzun üstüne koyma konumu (sağ omuz)
+        w.position.set(-2, 52, -10);
     }
-    w.position.set(14, 40, 0);
     return w;
 }
 
@@ -1021,7 +1082,7 @@ function createHuman(kind, color) {
 
     const weapons = {};
     if (isPlayer) {
-        ['single', 'double', 'auto', 'minigun', 'grenade'].forEach(t => {
+        ['single', 'double', 'auto', 'minigun', 'grenade', 'rpg'].forEach(t => {
             weapons[t] = buildWeapon(t);
             weapons[t].visible = false;
             model.add(weapons[t]);
@@ -1071,6 +1132,22 @@ const aim = new THREE.Group();
     aim.position.y = 1.5;
     aim.visible = false;
     scene.add(aim);
+})();
+
+// --- nişan göstergesi (RPG - 3 kat daha büyük, kırmızı şeffaf daire) ---
+const rpgAim = new THREE.Group();
+(function () {
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(210, 48), new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.3, depthWrite: false }));
+    disc.rotation.x = -Math.PI / 2;
+    const ring = new THREE.Mesh(new THREE.RingGeometry(204, 210, 64), new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.9, side: THREE.DoubleSide }));
+    ring.rotation.x = -Math.PI / 2;
+    const cm = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const c1 = new THREE.Mesh(new THREE.BoxGeometry(36, 0.5, 3), cm);
+    const c2 = new THREE.Mesh(new THREE.BoxGeometry(3, 0.5, 36), cm);
+    rpgAim.add(disc, ring, c1, c2);
+    rpgAim.position.y = 1.5;
+    rpgAim.visible = false;
+    scene.add(rpgAim);
 })();
 
 // --- dinamik varlıklar (kaydedici sistem) ---
@@ -1223,6 +1300,54 @@ const regExplosions = {
     dispose: m => { m.m1.dispose(); m.m2.dispose(); m.m3.dispose(); }
 };
 
+const regRpgRockets = {
+    set: new Set(),
+    create: r => {
+        const grp = new THREE.Group();
+        // Roket Başlığı
+        const head = part(gCyl(0, 3, 12, 10), BM(0x4a5d23), 0, 0, 0, grp);
+        head.rotation.z = -Math.PI / 2;
+        // Roket Gövdesi
+        const body = part(gCyl(2, 2, 16, 10), BM(0x222222), -10, 0, 0, grp);
+        body.rotation.z = -Math.PI / 2;
+        // Alev Partikülleri ve Alevler
+        const fire = part(gCyl(3, 0.5, 14, 8), BM(0xff5722, { transparent: true, opacity: 0.9 }), -23, 0, 0, grp);
+        fire.rotation.z = -Math.PI / 2;
+        const innerFire = part(gCyl(1.8, 0.1, 10, 8), BM(0xffeb3b, { transparent: true, opacity: 0.9 }), -21, 0, 0, grp);
+        innerFire.rotation.z = -Math.PI / 2;
+        return { group: grp, fire: fire, innerFire: innerFire };
+    },
+    update: r => {
+        const m = r._m;
+        const angle = Math.atan2(r.targetY - r.startY, r.targetX - r.startX);
+        const totalDist = Math.hypot(r.targetX - r.startX, r.targetY - r.startY);
+        const currDist = Math.hypot(r.x - r.startX, r.y - r.startY);
+        const progress = Math.min(1, currDist / totalDist);
+
+        // Havada yay çizerek düşme efekti
+        const arcHeight = Math.sin(progress * Math.PI) * 80;
+        const currentY = (45 * (1 - progress)) + (2 * progress) + arcHeight;
+
+        m.group.position.set(r.x, currentY, r.y);
+        m.group.rotation.y = -angle;
+        m.group.rotation.z = (0.5 - progress) * 0.8; // Havaya kalkıp hedefe doğru alçalma açısı
+
+        // Alev ve partikül animasyonu
+        const fl = 1 + Math.random() * 0.4;
+        m.fire.scale.set(fl, 1, fl);
+        m.innerFire.scale.set(fl, 1, fl);
+
+        // Arkasında alev ve duman partikülleri bırakma
+        if (Math.random() < 0.6) {
+            const pMat = BM(Math.random() < 0.5 ? 0xff9800 : 0x555555, { transparent: true, opacity: 0.7 });
+            const p = new THREE.Mesh(gSphere(1.5 + Math.random() * 3, 6, 6), pMat);
+            p.position.set(r.x - Math.cos(angle) * 20 + rnd(-3, 3), currentY + rnd(-3, 3), r.y - Math.sin(angle) * 20 + rnd(-3, 3));
+            scene.add(p);
+            setTimeout(() => scene.remove(p), 180 + Math.random() * 100);
+        }
+    }
+};
+
 // --- görüntü döngüsü yardımcıları ---
 const raycaster = new THREE.Raycaster();
 const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -1300,6 +1425,23 @@ function getGrenadeTarget() {
     return { x: tx, y: ty };
 }
 
+function getRpgTarget() {
+    const useJoy = (grenadeVector.x !== 0 || grenadeVector.y !== 0);
+    let dx, dy;
+    if (useJoy) {
+        if (viewMode === 'fps') {
+            const f = -grenadeVector.y, s = grenadeVector.x;
+            const ca = Math.cos(player.angle), sa = Math.sin(player.angle);
+            dx = f * ca - s * sa; dy = f * sa + s * ca;
+        } else { dx = grenadeVector.x; dy = grenadeVector.y; }
+    } else { dx = Math.cos(player.angle); dy = Math.sin(player.angle); }
+    let tx = player.x + dx * 280;
+    let ty = player.y + dy * 280;
+    tx = Math.max(80, Math.min(WORLD_W - 80, tx));
+    ty = Math.max(80, Math.min(WORLD_H - 80, ty));
+    return { x: tx, y: ty };
+}
+
 function updatePlayer3D() {
     const p = player3d;
     const fps = viewMode === 'fps';
@@ -1326,7 +1468,7 @@ function updatePlayer3D() {
             -18 + kick * 3.5
         );
         fpsRig.rotation.x = kick * 0.08;
-        fpsFlash.visible = currentWeapon !== 'grenade' && (now - player.lastShot) < 55;
+        fpsFlash.visible = currentWeapon !== 'grenade' && currentWeapon !== 'rpg' && (now - player.lastShot) < 55;
     }
 
     if (!isGameStarted || fps) return;
@@ -1337,7 +1479,7 @@ function updatePlayer3D() {
     p.model.position.y = dead ? 12 : Math.abs(Math.sin(player.walkCycle)) * 1.2;
     animateLegs(p, player.walkCycle);
     for (const k in p.weapons) p.weapons[k].visible = (k === currentWeapon);
-    p.flash.visible = !dead && currentWeapon !== 'grenade' && (now - player.lastShot) < 55;
+    p.flash.visible = !dead && currentWeapon !== 'grenade' && currentWeapon !== 'rpg' && (now - player.lastShot) < 55;
     setBar(p.bar, player.hp / player.maxHp);
     p.bar.grp.quaternion.copy(camera.quaternion);
 }
@@ -1347,18 +1489,26 @@ function render3D() {
     updateRemote3D();
     sync(enemies, regEnemies);
     sync(bullets, regBullets);
+    sync(rpgRockets, regRpgRockets);
     sync(coins, regCoins);
     sync(healthPacks, regPacks);
     sync(movingCars, regCars);
     sync(explosions, regExplosions);
 
-    // bomba nişanı
+    // bomba / rpg nişanı
     if (isGameStarted && currentWeapon === 'grenade' && unlockedWeapons.grenade) {
         const t = getGrenadeTarget();
         aim.position.set(t.x, 1.5, t.y);
         aim.visible = true;
+        rpgAim.visible = false;
+    } else if (isGameStarted && currentWeapon === 'rpg' && unlockedWeapons.rpg) {
+        const t = getRpgTarget();
+        rpgAim.position.set(t.x, 1.5, t.y);
+        rpgAim.visible = true;
+        aim.visible = false;
     } else {
         aim.visible = false;
+        rpgAim.visible = false;
     }
 
     // patlama ışığı
@@ -1388,7 +1538,7 @@ const fpsRig = new THREE.Group();
 fpsRig.position.set(4, -11, -18);
 camera.add(fpsRig);
 const fpsWeapons = {};
-['single', 'double', 'auto', 'minigun', 'grenade'].forEach(t => {
+['single', 'double', 'auto', 'minigun', 'grenade', 'rpg'].forEach(t => {
     const w = buildWeapon(t);
     w.position.set(0, 0, 0);
     w.rotation.y = Math.PI / 2;
@@ -1543,6 +1693,9 @@ let grenadeTouchId = null;
 let lastGrenadeTime = 0;
 const grenadeCooldown = 500;
 
+let lastRpgTime = 0;
+const rpgCooldown = 3000;
+
 const player = {
     x: 100,
     y: 100,
@@ -1606,6 +1759,7 @@ initMapObjects();
 resizeCanvas();
 
 let bullets = [];
+let rpgRockets = [];
 let enemies = [];
 let coins = [];
 let healthPacks = [];
@@ -1668,6 +1822,13 @@ function selectWeapon(type) {
             document.getElementById('grenade-joystick-container').style.display = 'flex';
         } else return;
     }
+    if (!mpActive && type === 'rpg' && !unlockedWeapons.rpg) {
+        if (gold >= 200) {
+            gold -= 200; unlockedWeapons.rpg = true;
+            saveAndUnlock('rpg', "RPG");
+            document.getElementById('grenade-joystick-container').style.display = 'flex';
+        } else return;
+    }
 
     currentWeapon = type;
     document.querySelectorAll('.weapon-btn').forEach(b => b.classList.remove('active'));
@@ -1680,7 +1841,7 @@ function selectWeapon(type) {
 }
 
 function cycleWeapon(delta) {
-    const weaponOrder = ['single', 'double', 'auto', 'minigun', 'grenade'];
+    const weaponOrder = ['single', 'double', 'auto', 'minigun', 'grenade', 'rpg'];
     const available = weaponOrder.filter(w => mpActive ? MP_WEAPONS[w] : unlockedWeapons[w]);
     if (available.length <= 1) return;
     let idx = available.indexOf(currentWeapon);
@@ -1753,6 +1914,10 @@ function handleShooting() {
         throwGrenade();
         return;
     }
+    if (currentWeapon === 'rpg') {
+        fireRpg();
+        return;
+    }
 
     if (viewMode === 'fps') {
         const ft = fpsAimTarget();
@@ -1775,6 +1940,27 @@ function handleShooting() {
     }
 
     shootBullet(player.x, player.y, targetX, targetY, false);
+}
+
+function fireRpg() {
+    const now = Date.now();
+    if (now - lastRpgTime < (mpActive ? MP_GRENADE_COOLDOWN : rpgCooldown)) return;
+    lastRpgTime = now;
+
+    const target = getRpgTarget();
+    playRpgWhooshSound();
+
+    rpgRockets.push({
+        startX: player.x,
+        startY: player.y,
+        x: player.x,
+        y: player.y,
+        targetX: target.x,
+        targetY: target.y,
+        speed: 12
+    });
+
+    if (mpActive) mpSend({ t: 'rpg_fire', sx: player.x, sy: player.y, tx: target.x, ty: target.y });
 }
 
 function throwGrenade() {
@@ -1996,9 +2182,11 @@ function resetGame() {
     lastHpSeen = player.maxHp;
     totalSpawnedEnemies = 0;
     lastGrenadeTime = 0;
+    lastRpgTime = 0;
     lastSewageDamageTime = 0;
     
     bullets = [];
+    rpgRockets = [];
     enemies = [];
     coins = [];
     healthPacks = [];
@@ -2036,6 +2224,18 @@ function update() {
                 grenadeBtn.textContent = `Bomba (${(timeLeft / 1000).toFixed(1)}s)`;
             } else {
                 grenadeBtn.textContent = "Bomba";
+            }
+        }
+    }
+
+    if (unlockedWeapons.rpg) {
+        const rpgBtn = document.getElementById('btn-rpg');
+        if (rpgBtn) {
+            const timeLeft = rpgCooldown - (Date.now() - lastRpgTime);
+            if (timeLeft > 0) {
+                rpgBtn.textContent = `RPG (${(timeLeft / 1000).toFixed(1)}s)`;
+            } else {
+                rpgBtn.textContent = "RPG";
             }
         }
     }
@@ -2286,6 +2486,37 @@ function update() {
         }
     }
 
+    // RPG Füzesi İlerlemesi ve Patlaması
+    for (let i = rpgRockets.length - 1; i >= 0; i--) {
+        const r = rpgRockets[i];
+        const angle = Math.atan2(r.targetY - r.y, r.targetX - r.x);
+        r.x += Math.cos(angle) * r.speed;
+        r.y += Math.sin(angle) * r.speed;
+
+        // Hedefe ulaştı mı?
+        if (Math.hypot(r.targetX - r.x, r.targetY - r.y) < 15) {
+            explosions.push({ x: r.targetX, y: r.targetY, radius: 210, timer: 50 });
+            playRpgExplosionSound();
+            screenShakeTimer = 35;
+
+            // Etki alanı içerisindeki tüm düşmanlara 370 Hasar vur
+            enemies.forEach(en => {
+                if (Math.hypot(en.x - r.targetX, en.y - r.targetY) < 210 + en.radius) {
+                    en.hp -= 600;
+                }
+            });
+
+            if (mpActive) {
+                mpSend({ t: 'rpg_boom', x: r.targetX, y: r.targetY });
+                if (remote.active && Math.hypot(remote.x - r.targetX, remote.y - r.targetY) < 210 + remote.radius) {
+                    // Rakibe hasar sinyali
+                }
+            }
+
+            rpgRockets.splice(i, 1);
+        }
+    }
+
     for (let i = coins.length - 1; i >= 0; i--) {
         const c = coins[i];
         if (Math.hypot(player.x - c.x, player.y - c.y) < player.radius + c.radius) {
@@ -2443,7 +2674,8 @@ const MP_WEAPONS = {
     double: { dmg: 16, rate: 380 },   // Desert Eagle (iki mermi)
     auto:   { dmg: 7,  rate: 90 },    // M-60
     minigun: { dmg: 3, rate: 100 },   // Minigun (4 mermi / atış)
-    grenade: { dmg: 60, rate: 200 }   // Bomba (patlama hasarı)
+    grenade: { dmg: 60, rate: 200 },  // Bomba (patlama hasarı)
+    rpg:     { dmg: 120, rate: 3000 } // RPG
 };
 const MP_GRENADE_COOLDOWN = 2000;
 const MAP_NAMES = { park: 'Kentleşmiş Park', kanal: 'Kanalizasyon', sehir: 'Şehir İçi' };
@@ -2481,7 +2713,7 @@ function mpLibOk() {
 }
 
 function refreshWeaponButtons() {
-    const defs = [['single', 'Glock', 0], ['double', 'Desert Eagle', 30], ['auto', 'M-60', 50], ['minigun', 'Minigun', 100], ['grenade', 'Bomba', 70]];
+    const defs = [['single', 'Glock', 0], ['double', 'Desert Eagle', 30], ['auto', 'M-60', 50], ['minigun', 'Minigun', 100], ['grenade', 'Bomba', 70], ['rpg', 'RPG', 200]];
     defs.forEach(d => {
         const b = document.getElementById('btn-' + d[0]);
         if (!b) return;
@@ -2497,7 +2729,7 @@ function refreshWeaponButtons() {
         }
     });
     const gj = document.getElementById('grenade-joystick-container');
-    if (gj) gj.style.display = (mpActive || unlockedWeapons.grenade) ? 'flex' : 'none';
+    if (gj) gj.style.display = (mpActive || unlockedWeapons.grenade || unlockedWeapons.rpg) ? 'flex' : 'none';
 }
 
 function mpApplyUI() {
@@ -2665,6 +2897,18 @@ function mpOnData(d) {
             if (d.w) remote.w = d.w;
             playShootSound();
             break;
+        case 'rpg_fire':
+            if (!isGameStarted || isGameOver) break;
+            playRpgWhooshSound();
+            rpgRockets.push({
+                startX: d.sx, startY: d.sy,
+                x: d.sx, y: d.sy,
+                targetX: d.tx, targetY: d.ty,
+                speed: 12
+            });
+            remote.lastShot = Date.now();
+            remote.w = 'rpg';
+            break;
         case 'h':
             playHitSound();
             break;
@@ -2676,6 +2920,19 @@ function mpOnData(d) {
             remote.lastShot = Date.now();
             if (Math.hypot(player.x - d.x, player.y - d.y) < 70 + player.radius) {
                 player.hp -= MP_WEAPONS.grenade.dmg;
+                healthEl.textContent = Math.max(0, player.hp);
+                playHitSound();
+                mpSend({ t: 'h' });
+            }
+            break;
+        case 'rpg_boom':
+            if (!isGameStarted || isGameOver) break;
+            explosions.push({ x: d.x, y: d.y, radius: 210, timer: 50 });
+            playRpgExplosionSound();
+            screenShakeTimer = 35;
+            remote.lastShot = Date.now();
+            if (Math.hypot(player.x - d.x, player.y - d.y) < 210 + player.radius) {
+                player.hp -= MP_WEAPONS.rpg.dmg;
                 healthEl.textContent = Math.max(0, player.hp);
                 playHitSound();
                 mpSend({ t: 'h' });
@@ -2741,6 +2998,7 @@ function mpLeave() {
     remote.active = false;
     remote.init = false;
     bullets = [];
+    rpgRockets = [];
     startScreen.style.display = 'flex';
     screenTitle.textContent = 'Cephede tek başına V1.3';
     screenScore.textContent = 'Arkadaşınla 1v1 savaş • harita rastgele seçilir';
