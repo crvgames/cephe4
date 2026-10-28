@@ -1694,7 +1694,7 @@ let lastGrenadeTime = 0;
 const grenadeCooldown = 500;
 
 let lastRpgTime = 0;
-const rpgCooldown = 3000;
+const rpgCooldown = 3500;
 
 const player = {
     x: 100,
@@ -2499,10 +2499,10 @@ function update() {
             playRpgExplosionSound();
             screenShakeTimer = 35;
 
-            // Etki alanı içerisindeki tüm düşmanlara 370 Hasar vur
+            // Etki alanı içerisindeki tüm düşmanlara 400 Hasar vur
             enemies.forEach(en => {
                 if (Math.hypot(en.x - r.targetX, en.y - r.targetY) < 210 + en.radius) {
-                    en.hp -= 600;
+                    en.hp -= 400;
                 }
             });
 
