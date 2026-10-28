@@ -274,6 +274,34 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             pointer-events: none;
         }
+        #scope-btn {
+            position: absolute;
+            bottom: 180px;
+            left: 70px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(33, 150, 243, 0.3);
+            border: 2px solid rgba(100, 181, 246, 0.75);
+            color: rgba(255, 255, 255, 0.92);
+            font-weight: bold;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(33, 150, 243, 0.35);
+            transition: opacity 0.15s, background 0.15s;
+        }
+        #scope-btn.on {
+            background: rgba(33, 150, 243, 0.65);
+        }
+        #mp-code-input {
+            user-select: text;
+            -webkit-user-select: text;
+            touch-action: auto;
+        }
     </style>
 </head>
 <body>
@@ -281,19 +309,21 @@
 <div id="top-bar">
     <div class="stats">
         <span>Can: <span id="health" style="color:#76ff03;">100</span></span>
-        <span>Skor: <span id="score" style="color:#ffeb3b;">0</span></span>
-        <span>En Yüksek: <span id="highScore" style="color:#ff9800;">0</span></span>
-        <span>Altın: 🪙<span id="gold" style="color:#ffd700;">0</span></span>
+        <span class="sp-only">Skor: <span id="score" style="color:#ffeb3b;">0</span></span>
+        <span class="sp-only">En Yüksek: <span id="highScore" style="color:#ff9800;">0</span></span>
+        <span class="sp-only">Altın: 🪙<span id="gold" style="color:#ffd700;">0</span></span>
+        <span id="opp-stat" style="display:none; color:#ff7043;">Rakip: <span id="opp-hp">100</span></span>
         <span id="wave-stat" style="display:none; color:#00e676;">Dalga: <span id="current-wave-display">1</span>/<span id="total-wave-display">1</span></span>
     </div>
     <div style="border-left: 2px solid #555; height: 25px;"></div>
-    <button class="weapon-btn active" id="btn-single" onclick="selectWeapon('single')">Tekli</button>
-    <button class="weapon-btn locked" id="btn-double" onclick="selectWeapon('double')">Çiftli (30🪙)</button>
-    <button class="weapon-btn locked" id="btn-auto" onclick="selectWeapon('auto')">Taramalı (50🪙)</button>
+    <button class="weapon-btn active" id="btn-single" onclick="selectWeapon('single')">Glock</button>
+    <button class="weapon-btn locked" id="btn-double" onclick="selectWeapon('double')">Desert Eagle (30🪙)</button>
+    <button class="weapon-btn locked" id="btn-auto" onclick="selectWeapon('auto')">M-60 (50🪙)</button>
     <button class="weapon-btn locked" id="btn-minigun" onclick="selectWeapon('minigun')">Minigun (100🪙)</button>
     <button class="weapon-btn locked" id="btn-grenade" onclick="selectWeapon('grenade')">Bomba (70🪙)</button>
     <div style="border-left: 2px solid #555; height: 25px;"></div>
     <button class="ctrl-btn" id="btn-pause" onclick="togglePause()">Durdur</button>
+    <button class="ctrl-btn" id="btn-leave" onclick="mpLeave()" style="display:none;background:#b71c1c;">Ayrıl</button>
     <button class="ctrl-btn" id="btn-mute" onclick="toggleMute()">Ses: Açık</button>
     <button class="ctrl-btn" id="btn-view" onclick="toggleView()">Kamera: 1. Şahıs</button>
     <button class="ctrl-btn" id="btn-fs" onclick="toggleFullScreen()">Tam Ekran</button>
@@ -305,9 +335,9 @@
 <div id="start-screen">
     <h1 id="screen-title">Cephede tek başına V1.3</h1>
     <div class="score-info" id="screen-score">En Yüksek Skor: <span id="start-high-score">0</span></div>
-    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • V kamera değiştir • Fare Tekerleği: Silah Değiştir • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
+    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • C kamera değiştir • Fare Tekerleği: Silah Değiştir • Sağ tık (basılı tut) / N: nişangah (1. şahıs; Glock, Desert Eagle, M-60) • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
     
-    <div class="map-container">
+    <div class="map-container" id="map-container">
         <button class="map-btn selected" id="map-park" onclick="setGameMap('park')">Kentleşmiş Park</button>
         <button class="map-btn" id="map-kanal" onclick="setGameMap('kanal')">Kanalizasyon</button>
         <button class="map-btn" id="map-sehir" onclick="setGameMap('sehir')">Şehir İçi</button>
@@ -316,12 +346,29 @@
     <div class="mode-container">
         <button class="mode-btn selected" id="mode-normal" onclick="setGameMode('normal')">Normal Mod</button>
         <button class="mode-btn" id="mode-hard" onclick="setGameMode('hard')">🔥 Zor Mod (Sadece Boss)</button>
+        <button class="mode-btn" id="mode-ultra" onclick="setGameMode('ultra')">💀 Ultra Zor Mod (Siyah Mega Boss)</button>
         <button class="mode-btn" id="mode-wave" onclick="setGameMode('wave')">🌊 Dalga Modu</button>
+        <button class="mode-btn" id="mode-mp" onclick="setGameMode('mp')">🌐 Çok Oyunculu (1v1)</button>
     </div>
 
     <div class="wave-container" id="wave-settings-box" style="display:none;">
         <span style="font-weight:bold; font-size:16px; color:#ffeb3b;">Toplam Dalga Sayısı:</span>
         <input type="number" id="wave-input" class="wave-input-box" value="3" min="1" max="20">
+    </div>
+
+    <div id="mp-panel" style="display:none; flex-direction:column; align-items:center; gap:10px; margin-bottom:15px; max-width:92%;">
+        <div id="mp-menu" class="mode-container" style="margin-bottom:0;">
+            <button class="mode-btn" onclick="mpHost()">🏠 Oda Kur</button>
+            <span style="color:#888; font-weight:bold;">veya</span>
+            <input type="text" id="mp-code-input" class="wave-input-box" style="width:120px; text-transform:uppercase; letter-spacing:3px;" maxlength="5" placeholder="KOD" autocomplete="off">
+            <button class="mode-btn" onclick="mpJoin()">🔗 Katıl</button>
+        </div>
+        <div id="mp-room" style="display:none; font-size:18px; font-weight:bold; color:#ffeb3b;">Oda kodu: <span id="mp-room-code" style="font-size:26px; letter-spacing:4px; color:#00e676;"></span></div>
+        <div id="mp-status" style="font-size:14px; color:#bbb; text-align:center; min-height:18px; max-width:420px;"></div>
+        <div id="mp-actions" class="mode-container" style="display:none; margin-bottom:0;">
+            <button class="mode-btn selected" id="mp-rematch-btn" onclick="mpHostStartMatch()">▶ Yeni Maç (Rastgele Harita)</button>
+            <button class="mode-btn" id="mp-leave-btn" onclick="mpLeave()">✖ Ayrıl</button>
+        </div>
     </div>
 
     <button class="play-btn" id="start-btn" onclick="startGame()">OYUNU BAŞLAT</button>
@@ -347,11 +394,13 @@
     <div id="joystick-knob"></div>
 </div>
 <div id="fire-btn">ATEŞ</div>
+<div id="scope-btn">N</div>
 <div id="grenade-joystick-container" style="display:none;">
     <div id="grenade-joystick-knob"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js" onerror="var s=document.createElement('script');s.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';document.head.appendChild(s);"></script>
 <script>
 if (typeof THREE === 'undefined') {
     document.getElementById('start-screen').insertAdjacentHTML('afterbegin',
@@ -399,11 +448,11 @@ goldEl.textContent = gold;
 function loadSavedData() {
     if (unlockedWeapons.double) {
         const btn = document.getElementById('btn-double');
-        if (btn) { btn.textContent = "Çiftli"; btn.classList.remove('locked'); }
+        if (btn) { btn.textContent = "Desert Eagle"; btn.classList.remove('locked'); }
     }
     if (unlockedWeapons.auto) {
         const btn = document.getElementById('btn-auto');
-        if (btn) { btn.textContent = "Taramalı"; btn.classList.remove('locked'); }
+        if (btn) { btn.textContent = "M-60"; btn.classList.remove('locked'); }
     }
     if (unlockedWeapons.minigun) {
         const btn = document.getElementById('btn-minigun');
@@ -420,6 +469,7 @@ loadSavedData();
 
 let currentGameMode = 'normal';
 let currentMap = 'park';
+let mpActive = false;
 
 let totalWaves = 3;
 let currentWave = 1;
@@ -428,15 +478,36 @@ let enemiesSpawnedCount = 0;
 let pendingWaveGold = 0;
 
 function setGameMode(mode) {
+    const wasMp = currentGameMode === 'mp';
     currentGameMode = mode;
-    document.getElementById('mode-normal').classList.toggle('selected', mode === 'normal');
-    document.getElementById('mode-hard').classList.toggle('selected', mode === 'hard');
-    document.getElementById('mode-wave').classList.toggle('selected', mode === 'wave');
+    ['normal', 'hard', 'ultra', 'wave', 'mp'].forEach(m => {
+        const b = document.getElementById('mode-' + m);
+        if (b) b.classList.toggle('selected', mode === m);
+    });
 
     const waveBox = document.getElementById('wave-settings-box');
     if (waveBox) {
         waveBox.style.display = (mode === 'wave') ? 'flex' : 'none';
     }
+
+    const nowMp = (mode === 'mp');
+    if (wasMp && !nowMp) { mpCleanup(); mpResult = null; }
+    mpActive = nowMp;
+    document.getElementById('map-container').style.display = nowMp ? 'none' : 'flex';
+    startBtn.style.display = nowMp ? 'none' : '';
+    if (wasMp !== nowMp) {
+        if (!nowMp) mpRestoreSpWeapon();
+        initMapObjects();
+    }
+    if (nowMp) selectWeapon(MP_WEAPONS[currentWeapon] ? currentWeapon : 'single');
+
+    screenTitle.textContent = 'Cephede tek başına V1.3';
+    screenScore.innerHTML = nowMp
+        ? 'Arkadaşınla 1v1 savaş • harita rastgele seçilir'
+        : 'En Yüksek Skor: <span id="start-high-score">' + highScore + '</span>';
+    mpSetStatus(nowMp && !mpPeer ? 'Oda kur ve kodu arkadaşına gönder ya da gelen kodla katıl.' : '');
+    mpApplyUI();
+    mpRenderPanel();
 }
 
 function setGameMap(map) {
@@ -451,6 +522,7 @@ let isPaused = false;
 let isMuted = false;
 
 function togglePauseBase() {
+    if (mpActive) return;
     if (!isGameStarted || isGameOver || wavePromptScreen.style.display === "flex") return;
     isPaused = !isPaused;
     pauseScreen.style.display = isPaused ? "flex" : "none";
@@ -903,30 +975,31 @@ function setBar(bar, ratio) {
 }
 
 function createHuman(kind, color) {
-    const isBoss = kind === 'boss', isPlayer = kind === 'player';
+    const isMega = kind === 'mega';
+    const isBoss = kind === 'boss' || isMega, isPlayer = kind === 'player';
     const root = new THREE.Group();
     const model = new THREE.Group();
     root.add(model);
-    const skin = isBoss ? 0xb39ddb : 0xf1c9a0;
+    const skin = isMega ? 0x2a2a2a : (isBoss ? 0xb39ddb : 0xf1c9a0);
     const shade = new THREE.Color(color).multiplyScalar(0.72).getHex();
 
     const legs = [];
     [-6, 6].forEach(z => {
         const leg = new THREE.Group();
         leg.position.set(0, 24, z);
-        part(gBox(8, 24, 8), M(0x252a31), 0, -12, 0, leg);
+        part(gBox(8, 24, 8), M(isMega ? 0x070707 : 0x252a31), 0, -12, 0, leg);
         part(gBox(12, 4, 9), M(0x111111), 2, -22, 0, leg);
         model.add(leg);
         legs.push(leg);
     });
     part(gBox(14, 24, 24), M(color), 0, 36, 0, model);          // gövde
-    part(gBox(15, 3, 25), M(0x1b1b1b), 0, 25, 0, model);        // kemer
+    part(gBox(15, 3, 25), isMega ? M(0xb71c1c, { emissive: 0x7f0000, emissiveIntensity: 0.8 }) : M(0x1b1b1b), 0, 25, 0, model);        // kemer
     [-12, 12].forEach(z => {
         part(gBox(18, 6, 6), M(shade), 9, 41, z, model);        // kol
         part(gBox(5, 5, 5), M(skin), 19, 41, z * 0.75, model);  // el
     });
     part(gSphere(8, 16, 12), M(skin), 0, 57, 0, model);          // kafa
-    const capColor = isBoss ? 0x4a148c : (isPlayer ? 0x0d47a1 : 0x8e0000);
+    const capColor = isMega ? 0x000000 : (isBoss ? 0x4a148c : (isPlayer ? 0x0d47a1 : 0x8e0000));
     const cap = part(geo('cap', () => new THREE.SphereGeometry(9, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2)), M(capColor), 0, 58, 0, model);
     cap.scale.set(1, 0.9, 1);
     const eyeMat = isBoss ? BM(0xff1744) : BM(0x000000);
@@ -934,9 +1007,16 @@ function createHuman(kind, color) {
     part(gSphere(1.4, 8, 6), eyeMat, 7.3, 58, 3.5, model, false);
     if (isBoss) {
         [-5, 5].forEach(z => {
-            const horn = part(gCyl(0.1, 2.2, 9, 8), M(0xeeeeee), 0, 67, z, model);
+            const horn = part(gCyl(0.1, 2.2, 9, 8), M(isMega ? 0x1a1a1a : 0xeeeeee), 0, 67, z, model);
             horn.rotation.x = z > 0 ? -0.4 : 0.4;
         });
+    }
+    if (isMega) {
+        [-1, 1].forEach(s => {
+            part(gCyl(0, 3.2, 12, 8), M(0x111111), 0, 52, s * 15, model);
+            part(gCyl(0, 2.4, 9, 8), M(0x111111), 0, 47, s * 20, model);
+        });
+        part(gBox(2, 6, 6), BM(0xff1744), 7.6, 38, 0, model, false);   // parlayan göğüs çekirdeği
     }
 
     const weapons = {};
@@ -960,10 +1040,10 @@ function createHuman(kind, color) {
         model.add(flash);
     }
 
-    const sc = isBoss ? 2.8 : 1;
+    const sc = isMega ? 4.2 : (isBoss ? 2.8 : 1);
     model.scale.setScalar(sc);
 
-    const bar = createBar(isBoss ? 90 : (isPlayer ? 40 : 34), isBoss ? 8 : 5, isBoss ? 62 * sc + 16 : 80, isBoss ? 0xab47bc : (isPlayer ? 0x76ff03 : 0xff1744));
+    const bar = createBar(isMega ? 150 : (isBoss ? 90 : (isPlayer ? 40 : 34)), isMega ? 10 : (isBoss ? 8 : 5), isBoss ? 62 * sc + 16 : 80, isMega ? 0xd50000 : (isBoss ? 0xab47bc : (isPlayer ? 0x76ff03 : 0xff1744)));
     root.add(bar.grp);
 
     return { group: root, model: model, legs: legs, weapons: weapons, flash: flash, bar: bar };
@@ -971,6 +1051,11 @@ function createHuman(kind, color) {
 
 const player3d = createHuman('player', 0x2196F3);
 scene.add(player3d.group);
+
+// --- rakip oyuncu (çok oyunculu) ---
+const remote3d = createHuman('player', 0xf44336);
+remote3d.group.visible = false;
+scene.add(remote3d.group);
 
 // --- nişan göstergesi (bomba) ---
 const aim = new THREE.Group();
@@ -1016,7 +1101,7 @@ function animateLegs(h, walk) {
 
 const regEnemies = {
     set: new Set(),
-    create: en => createHuman(en.isBoss ? 'boss' : 'enemy', en.isBoss ? 0x8e24aa : 0xf44336),
+    create: en => createHuman(en.isMega ? 'mega' : (en.isBoss ? 'boss' : 'enemy'), en.isMega ? 0x0a0a0a : (en.isBoss ? 0x8e24aa : 0xf44336)),
     update: en => {
         const h = en._m;
         h.group.position.set(en.x, 0, en.y);
@@ -1039,9 +1124,10 @@ const regBullets = {
     update: b => {
         const g = b._m.group;
         let h = (!b.isEnemy && viewMode === 'fps') ? 46 : 38;
-        if (b.isEnemy && b.radius === 10) {
+        if (b.isEnemy && (b.radius === 10 || b.radius === 14)) {
             const k = Math.min(1, Math.hypot(b.x - b._x0, b.y - b._y0) / b._d0);
-            h = 105 + (44 - 105) * k;
+            const h0 = (b.radius === 14) ? 170 : 105;
+            h = h0 + (44 - h0) * k;
         }
         g.position.set(b.x, h, b.y);
         g.rotation.y = -Math.atan2(b.vy, b.vx);
@@ -1219,7 +1305,7 @@ function updatePlayer3D() {
     const fps = viewMode === 'fps';
     const now = Date.now();
     p.group.visible = isGameStarted && !fps;
-    crosshair.style.display = (fps && gameplayActive()) ? 'block' : 'none';
+    crosshair.style.display = (fps && gameplayActive() && scopeAmt < 0.3) ? 'block' : 'none';
 
     if (isGameStarted) {
         if (player.hp < lastHpSeen) hurtAlpha = Math.min(1, hurtAlpha + 0.6);
@@ -1228,7 +1314,7 @@ function updatePlayer3D() {
     hurtAlpha *= 0.93;
     hurtEl.style.opacity = hurtAlpha.toFixed(3);
 
-    fpsRig.visible = fps && isGameStarted && player.hp > 0;
+    fpsRig.visible = fps && isGameStarted && player.hp > 0 && scopeAmt < 0.6;
     if (fps && isGameStarted) {
         for (const k in fpsWeapons) fpsWeapons[k].visible = (k === currentWeapon);
         const kick = Math.max(0, 1 - (now - player.lastShot) / 110);
@@ -1258,6 +1344,7 @@ function updatePlayer3D() {
 
 function render3D() {
     updatePlayer3D();
+    updateRemote3D();
     sync(enemies, regEnemies);
     sync(bullets, regBullets);
     sync(coins, regCoins);
@@ -1360,7 +1447,7 @@ function togglePause() {
 }
 
 function lookBy(dx, dy, k) {
-    k = k || 1;
+    k = (k || 1) * (1 - 0.55 * scopeAmt);
     player.angle += dx * 0.0024 * k;
     lookPitch -= dy * 0.0022 * k;
     lookPitch = Math.max(-1.25, Math.min(1.25, lookPitch));
@@ -1370,8 +1457,9 @@ function lookBy(dx, dy, k) {
 function fpsAimTarget() {
     const a = player.angle;
     let best = null, bestDist = 1e9;
-    for (let i = 0; i < enemies.length; i++) {
-        const en = enemies[i];
+    const cands = (mpActive && remote.active && remote.hp > 0) ? enemies.concat([remote]) : enemies;
+    for (let i = 0; i < cands.length; i++) {
+        const en = cands[i];
         const ang = Math.atan2(en.y - player.y, en.x - player.x);
         const diff = Math.abs(Math.atan2(Math.sin(ang - a), Math.cos(ang - a)));
         const dist = Math.hypot(en.x - player.x, en.y - player.y);
@@ -1508,6 +1596,7 @@ function initMapObjectsLogic() {
             { x: WORLD_W - 200, y: WORLD_H * 0.6, w: 60, h: 30, vx: -3, vy: 0, color: '#ffeb3b', lastHitTime: 0 }
         ];
     }
+    if (mpActive) movingCars = [];   // çok oyunculuda araçlar senkron olmadığı için kapalı
 }
 function initMapObjects() {
     initMapObjectsLogic();
@@ -1553,25 +1642,26 @@ function startGame() {
 }
 
 function selectWeapon(type) {
-    if (type === 'double' && !unlockedWeapons.double) {
+    if (mpActive && !MP_WEAPONS[type]) return;
+    if (!mpActive && type === 'double' && !unlockedWeapons.double) {
         if (gold >= 30) {
             gold -= 30; unlockedWeapons.double = true;
-            saveAndUnlock('double', "Çiftli");
+            saveAndUnlock('double', "Desert Eagle");
         } else return;
     }
-    if (type === 'auto' && !unlockedWeapons.auto) {
+    if (!mpActive && type === 'auto' && !unlockedWeapons.auto) {
         if (gold >= 50) {
             gold -= 50; unlockedWeapons.auto = true;
-            saveAndUnlock('auto', "Taramalı");
+            saveAndUnlock('auto', "M-60");
         } else return;
     }
-    if (type === 'minigun' && !unlockedWeapons.minigun) {
+    if (!mpActive && type === 'minigun' && !unlockedWeapons.minigun) {
         if (gold >= 100) {
             gold -= 100; unlockedWeapons.minigun = true;
             saveAndUnlock('minigun', "Minigun");
         } else return;
     }
-    if (type === 'grenade' && !unlockedWeapons.grenade) {
+    if (!mpActive && type === 'grenade' && !unlockedWeapons.grenade) {
         if (gold >= 70) {
             gold -= 70; unlockedWeapons.grenade = true;
             saveAndUnlock('grenade', "Bomba");
@@ -1586,11 +1676,12 @@ function selectWeapon(type) {
     if (type === 'minigun') player.fireRate = 70;
     else if (type === 'auto') player.fireRate = 100;
     else player.fireRate = 200;
+    if (mpActive && MP_WEAPONS[type]) player.fireRate = MP_WEAPONS[type].rate;
 }
 
 function cycleWeapon(delta) {
     const weaponOrder = ['single', 'double', 'auto', 'minigun', 'grenade'];
-    const available = weaponOrder.filter(w => unlockedWeapons[w]);
+    const available = weaponOrder.filter(w => mpActive ? MP_WEAPONS[w] : unlockedWeapons[w]);
     if (available.length <= 1) return;
     let idx = available.indexOf(currentWeapon);
     if (idx === -1) idx = 0;
@@ -1618,11 +1709,16 @@ function saveAndUnlock(key, name) {
 }
 
 window.addEventListener("keydown", e => {
+    if (e.target && e.target.tagName === 'INPUT') return;
     if (e.key === "p" || e.key === "P") { togglePause(); return; }
-    if (e.key === "v" || e.key === "V") { toggleView(); return; }
+    if (e.key === "c" || e.key === "C") { toggleView(); return; }
+    if (e.key === "n" || e.key === "N") { scopeKey = true; return; }
     keys[e.key.toLowerCase()] = true;
 });
-window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+window.addEventListener("keyup", e => {
+    if (e.key === "n" || e.key === "N") scopeKey = false;
+    keys[e.key.toLowerCase()] = false;
+});
 
 canvas.addEventListener("mousemove", e => {
     screenMouse.x = e.clientX;
@@ -1633,9 +1729,15 @@ canvas.addEventListener("mousemove", e => {
 });
 
 canvas.addEventListener("mousedown", e => {
+    initAudio();
+    if (e.button === 2) { scopeMouse = true; return; }
     if (e.target === canvas) { isFiring = true; handleShooting(); }
 });
-window.addEventListener("mouseup", () => isFiring = false);
+window.addEventListener("mouseup", e => {
+    if (e.button === 2) scopeMouse = false;
+    else isFiring = false;
+});
+window.addEventListener("contextmenu", e => e.preventDefault());
 
 const fireBtn = document.getElementById("fire-btn");
 if (fireBtn) {
@@ -1699,6 +1801,21 @@ function throwGrenade() {
 }
 
 function shootBullet(fromX, fromY, targetX, targetY, isEnemy, isBoss = false) {
+    const n0 = bullets.length;
+    shootBulletCore(fromX, fromY, targetX, targetY, isEnemy, isBoss);
+    if (!isEnemy && mpActive && bullets.length > n0) {
+        const w = MP_WEAPONS[currentWeapon] || MP_WEAPONS.single;
+        const sent = [];
+        for (let i = n0; i < bullets.length; i++) {
+            const b = bullets[i];
+            b.damage = w.dmg;
+            sent.push({ x: b.x, y: b.y, vx: b.vx, vy: b.vy, r: b.radius });
+        }
+        mpSend({ t: 'shot', b: sent, d: w.dmg, w: currentWeapon });
+    }
+}
+
+function shootBulletCore(fromX, fromY, targetX, targetY, isEnemy, isBoss = false) {
     const now = Date.now();
     if (!isEnemy && now - player.lastShot < player.fireRate) return;
     if (!isEnemy) {
@@ -1812,8 +1929,14 @@ grenadeJoystickContainer.addEventListener("mousedown", e => { e.preventDefault()
 window.addEventListener("mousemove", e => { if (grenadeJoystickActive && grenadeTouchId === null) updateGrenadeJoystickPosition(e.clientX, e.clientY); });
 window.addEventListener("mouseup", () => { if (grenadeJoystickActive && grenadeTouchId === null) resetGrenadeJoystick(); });
 
+let lastMegaSpawn = 0;
 function spawnEnemy() {
     if (!isGameStarted || isGameOver || isPaused || wavePromptScreen.style.display === "flex" || enemies.length >= 7) return;
+    if (currentGameMode === 'mp') return;
+    if (currentGameMode === 'ultra') {
+        if (enemies.length >= 3 || Date.now() - lastMegaSpawn < 6000) return;
+        lastMegaSpawn = Date.now();
+    }
 
     if (currentGameMode === 'wave') {
         if (enemiesSpawnedCount >= enemiesToSpawnInWave) return;
@@ -1821,8 +1944,9 @@ function spawnEnemy() {
     }
 
     totalSpawnedEnemies++;
-    const isBoss = (currentGameMode === 'hard') ? true : (currentGameMode === 'wave' ? (enemiesSpawnedCount % 5 === 0) : (totalSpawnedEnemies % 20 === 0));
-    const radius = isBoss ? 54 : 18;
+    const isMega = (currentGameMode === 'ultra');
+    const isBoss = isMega || ((currentGameMode === 'hard') ? true : (currentGameMode === 'wave' ? (enemiesSpawnedCount % 5 === 0) : (totalSpawnedEnemies % 20 === 0)));
+    const radius = isMega ? 80 : (isBoss ? 54 : 18);
     let x, y;
     if (Math.random() < 0.5) {
         x = Math.random() < 0.5 ? -radius : WORLD_W + radius;
@@ -1832,14 +1956,14 @@ function spawnEnemy() {
         y = Math.random() < 0.5 ? -radius : WORLD_H + radius;
     }
 
-    let baseHp = isBoss ? 345 : 100;
+    let baseHp = isMega ? 1200 : (isBoss ? 345 : 100);
     enemies.push({
         x: x, y: y, radius: radius,
-        speed: isBoss ? 1.4 : 2,
-        color: isBoss ? "#8e24aa" : "#f44336",
+        speed: isMega ? 1.1 : (isBoss ? 1.4 : 2),
+        color: isMega ? "#000000" : (isBoss ? "#8e24aa" : "#f44336"),
         hp: baseHp, maxHp: baseHp,
         lastDamageTime: 0,
-        lastShot: 0, angle: 0, walkCycle: 0, isBoss: isBoss
+        lastShot: isMega ? Date.now() : 0, angle: 0, walkCycle: 0, isBoss: isBoss, isMega: isMega
     });
 }
 setInterval(spawnEnemy, 1800);
@@ -1852,6 +1976,20 @@ function resetGame() {
     player.walkCycle = 0;
     camSnap = true;
     player.angle = -Math.PI / 2;
+    lastMegaSpawn = Date.now() - 3000;
+    if (mpActive) {
+        const hostSide = (mpRole === 'host');
+        player.x = hostSide ? 100 : WORLD_W - 100;
+        player.y = WORLD_H / 2;
+        player.angle = hostSide ? 0 : Math.PI;
+        remote.active = true;
+        remote.x = remote.tx = hostSide ? WORLD_W - 100 : 100;
+        remote.y = remote.ty = WORLD_H / 2;
+        remote.angle = remote.tangle = hostSide ? Math.PI : 0;
+        remote.hp = 100; remote.w = 'single'; remote.walk = 0; remote.lastShot = 0;
+        document.getElementById('opp-hp').textContent = 100;
+        selectWeapon(MP_WEAPONS[currentWeapon] ? currentWeapon : 'single');
+    }
     lookPitch = 0;
     hurtAlpha = 0;
     lastHpSeen = player.maxHp;
@@ -1973,7 +2111,15 @@ function update() {
     for (let i = enemies.length - 1; i >= 0; i--) {
         if (enemies[i].hp <= 0) {
             const en = enemies[i];
-            if (en.isBoss) {
+            if (en.isMega) {
+                for (let k = 0; k < 25; k++) {
+                    const angle = (Math.PI * 2 / 25) * k;
+                    const dist = 40 + Math.random() * 60;
+                    coins.push({ x: en.x + Math.cos(angle) * dist, y: en.y + Math.sin(angle) * dist, radius: 8 });
+                }
+                healthPacks.push({ x: en.x + 20, y: en.y, radius: 12, healValue: 60 });
+                player.score += 200;
+            } else if (en.isBoss) {
                 if (currentGameMode !== 'wave') {
                     for (let k = 0; k < 10; k++) {
                         const angle = (Math.PI * 2 / 10) * k;
@@ -2008,7 +2154,7 @@ function update() {
             isGameOver = true;
             screenTitle.textContent = "TEBRİKLER! DALGALARI BİTİRDİN!";
             screenScore.innerHTML = "Toplam Kazanılan Altın: +" + pendingWaveGold + " 🪙 | Skorun: " + player.score;
-            startBtn.textContent = "ANA MENÜ";
+            startBtn.textContent = "YENİDEN BAŞLAT";
             startScreen.style.display = "flex";
             return;
         } else {
@@ -2027,6 +2173,7 @@ function update() {
         player.hp = 0;
         healthEl.textContent = 0;
         playGameOverSound();
+        if (mpActive) { mpOnLocalDeath(); return; }
 
         if (currentGameMode === 'wave') {
             pendingWaveGold = 0;
@@ -2111,20 +2258,28 @@ function update() {
         if (hitObs) { bullets.splice(i, 1); continue; }
 
         if (!b.isEnemy) {
+            let gone = false;
             for (let j = enemies.length - 1; j >= 0; j--) {
                 const en = enemies[j];
                 if (Math.hypot(b.x - en.x, b.y - en.y) < b.radius + en.radius) {
                     en.hp -= b.damage;
                     playHitSound();
                     bullets.splice(i, 1);
+                    gone = true;
                     break;
                 }
+            }
+            // çok oyunculu: hasarı kurban kendi tarafında işler, burada sadece mermi kaybolur
+            if (!gone && mpActive && remote.active && remote.hp > 0 &&
+                Math.hypot(b.x - remote.x, b.y - remote.y) < b.radius + remote.radius) {
+                bullets.splice(i, 1);
             }
         } else {
             if (Math.hypot(b.x - player.x, b.y - player.y) < b.radius + player.radius) {
                 player.hp -= b.damage;
                 healthEl.textContent = Math.max(0, player.hp);
                 playHitSound();
+                if (b.remote) mpSend({ t: 'h' });
                 bullets.splice(i, 1);
             }
         }
@@ -2153,19 +2308,49 @@ function update() {
 
     enemies.forEach(en => {
         en.angle = Math.atan2(player.y - en.y, player.x - en.x);
-        let nextX = en.x + Math.cos(en.angle) * en.speed;
-        let nextY = en.y + Math.sin(en.angle) * en.speed;
+        const dEn = Math.hypot(player.x - en.x, player.y - en.y);
+        const stopD = en.isMega ? en.radius * 0.6 : 0;
+        const cr = en.isMega ? 40 : en.radius;
 
-        if (!checkObstacleCollision(nextX, en.y, en.radius)) en.x = nextX;
-        if (!checkObstacleCollision(en.x, nextY, en.radius)) en.y = nextY;
+        if (dEn > stopD) {
+            let nextX = en.x + Math.cos(en.angle) * en.speed;
+            let nextY = en.y + Math.sin(en.angle) * en.speed;
+            if (!checkObstacleCollision(nextX, en.y, cr)) en.x = nextX;
+            if (!checkObstacleCollision(en.x, nextY, cr)) en.y = nextY;
+            en.walkCycle += 0.15;
+        }
 
-        en.walkCycle += 0.15;
-
-        if (now - en.lastShot > (en.isBoss ? 1200 : 1500)) {
+        if (en.isMega) {
+            // mega boss: yarı canda öfkelenir (daha hızlı, 5'li atış)
+            const enraged = en.hp < en.maxHp * 0.5;
+            if (enraged) en.speed = 1.7;
+            if (now - en.lastShot > (enraged ? 800 : 1000)) {
+                const base = Math.atan2(player.y - en.y, player.x - en.x);
+                const n = enraged ? 5 : 3;
+                for (let s = 0; s < n; s++) {
+                    const a = base + (s - (n - 1) / 2) * 0.22;
+                    bullets.push({
+                        x: en.x + Math.cos(base) * en.radius * 0.6, y: en.y + Math.sin(base) * en.radius * 0.6,
+                        vx: Math.cos(a) * 6.5, vy: Math.sin(a) * 6.5,
+                        radius: 14, color: "#ff1744", isEnemy: true, damage: 30
+                    });
+                }
+                en.lastShot = now;
+            }
+            if (dEn < en.radius + player.radius * 0.5 && now - (en.lastMelee || 0) > 800) {
+                en.lastMelee = now;
+                player.hp -= 35;
+                healthEl.textContent = Math.max(0, player.hp);
+                playHitSound();
+                screenShakeTimer = 15;
+            }
+        } else if (now - en.lastShot > (en.isBoss ? 1200 : 1500)) {
             shootBullet(en.x, en.y, player.x, player.y, true, en.isBoss);
             en.lastShot = now;
         }
     });
+
+    if (mpActive && mpConnected) mpSendState(now);
 }
 
 function onWavePromptChoice(choice) {
@@ -2188,12 +2373,391 @@ function onWavePromptChoice(choice) {
 
 function gameLoop() {
     lockGuard();
+    updateScope();
     updateCamera();
     updateMouseWorld();
     update();
     render3D();
     requestAnimationFrame(gameLoop);
 }
+
+// =====================================================================
+//  NİŞANGAH (SCOPE) — sadece 1. şahıs • Glock / Desert Eagle / M-60
+//  Sağ tık (basılı) • N tuşu (klavye) • ekrandaki mavi N butonu (basılı)
+// =====================================================================
+let scopeMouse = false, scopeBtnHeld = false, scopeKey = false, scopeAmt = 0;
+const SCOPE_WEAPONS = { single: true, double: true, auto: true };
+const scopeBtn = document.getElementById('scope-btn');
+const scopeEl = document.createElement('div');
+scopeEl.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:6;display:none;opacity:0;' +
+    'background:radial-gradient(circle at center, rgba(0,0,0,0) 0, rgba(0,0,0,0) 27vmin, rgba(0,0,0,0.55) 28.5vmin, #000 30vmin);';
+scopeEl.innerHTML =
+    '<div style="position:absolute;left:50%;top:50%;width:57vmin;height:57vmin;margin:-28.5vmin 0 0 -28.5vmin;border-radius:50%;border:2px solid rgba(0,0,0,0.9);box-sizing:border-box"></div>' +
+    '<div style="position:absolute;left:50%;top:50%;width:56vmin;height:1px;margin-left:-28vmin;background:rgba(255,60,60,0.9)"></div>' +
+    '<div style="position:absolute;left:50%;top:50%;width:1px;height:56vmin;margin-top:-28vmin;background:rgba(255,60,60,0.9)"></div>' +
+    '<div style="position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#ff1744"></div>';
+document.body.appendChild(scopeEl);
+
+function scopeAllowed() {
+    return viewMode === 'fps' && !!SCOPE_WEAPONS[currentWeapon] && gameplayActive();
+}
+
+function updateScope() {
+    const allowed = scopeAllowed();
+    const want = allowed && (scopeMouse || scopeBtnHeld || scopeKey);
+    const target = want ? 1 : 0;
+    if (viewMode !== 'fps') {
+        scopeAmt = 0;
+    } else {
+        scopeAmt += (target - scopeAmt) * 0.3;
+        if (Math.abs(target - scopeAmt) < 0.01) scopeAmt = target;
+        const f = 78 - 40 * scopeAmt;
+        if (Math.abs(camera.fov - f) > 0.01) { camera.fov = f; camera.updateProjectionMatrix(); }
+    }
+    scopeEl.style.display = scopeAmt > 0.02 ? 'block' : 'none';
+    scopeEl.style.opacity = Math.min(1, scopeAmt * 1.2).toFixed(2);
+    if (scopeBtn) {
+        scopeBtn.style.opacity = allowed ? '1' : '0.25';
+        scopeBtn.classList.toggle('on', want);
+    }
+}
+
+if (scopeBtn) {
+    scopeBtn.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); scopeBtnHeld = true; }, { passive: false });
+    scopeBtn.addEventListener('touchend', e => { e.preventDefault(); scopeBtnHeld = false; });
+    scopeBtn.addEventListener('touchcancel', () => { scopeBtnHeld = false; });
+    scopeBtn.addEventListener('mousedown', e => { e.preventDefault(); scopeBtnHeld = true; });
+    window.addEventListener('mouseup', () => { scopeBtnHeld = false; });
+}
+window.addEventListener('blur', () => { scopeMouse = false; scopeBtnHeld = false; scopeKey = false; isFiring = false; });
+
+// =====================================================================
+//  ÇOK OYUNCULU 1v1 (PeerJS / WebRTC, birebir bağlantı)
+//  • Harita her maçta sistem (oda kurucusu) tarafından rastgele seçilir.
+//  • Her oyuncu kendi canını/konumunu yönetir; mermiler iki tarafa da gönderilir,
+//    isabeti vurulan taraf kendi ekranında hesaplar.
+// =====================================================================
+const MP_WEAPONS = {
+    single: { dmg: 22, rate: 250 },   // Glock
+    double: { dmg: 16, rate: 380 },   // Desert Eagle (iki mermi)
+    auto:   { dmg: 7,  rate: 90 }     // M-60
+};
+const MAP_NAMES = { park: 'Kentleşmiş Park', kanal: 'Kanalizasyon', sehir: 'Şehir İçi' };
+const remote = { active: false, x: 0, y: 0, tx: 0, ty: 0, angle: 0, tangle: 0, hp: 100, w: 'single', radius: 18, lastShot: 0, walk: 0, init: false };
+
+let mpPeer = null, mpConn = null, mpConnected = false, mpRole = null, mpRoomCode = '';
+let mpResult = null, mpLastSend = 0;
+
+const mpToastEl = document.createElement('div');
+mpToastEl.style.cssText = 'position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:8px 16px;border-radius:10px;font-weight:bold;font-size:14px;z-index:12;display:none;pointer-events:none;text-align:center;max-width:90%;';
+document.body.appendChild(mpToastEl);
+let mpToastTimer = null;
+function mpToast(msg) {
+    mpToastEl.textContent = msg;
+    mpToastEl.style.display = 'block';
+    clearTimeout(mpToastTimer);
+    mpToastTimer = setTimeout(() => { mpToastEl.style.display = 'none'; }, 4000);
+}
+
+function mpSetStatus(msg) {
+    const el = document.getElementById('mp-status');
+    if (el) el.textContent = msg;
+}
+
+function mpSend(obj) {
+    try { if (mpConn && mpConn.open) mpConn.send(obj); } catch (e) {}
+}
+
+function mpLibOk() {
+    if (typeof Peer === 'undefined') {
+        mpSetStatus('Çok oyunculu bağlantı kütüphanesi (PeerJS) yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.');
+        return false;
+    }
+    return true;
+}
+
+function refreshWeaponButtons() {
+    const defs = [['single', 'Glock', 0], ['double', 'Desert Eagle', 30], ['auto', 'M-60', 50], ['minigun', 'Minigun', 100], ['grenade', 'Bomba', 70]];
+    defs.forEach(d => {
+        const b = document.getElementById('btn-' + d[0]);
+        if (!b) return;
+        if (mpActive) {
+            b.style.display = MP_WEAPONS[d[0]] ? '' : 'none';
+            b.textContent = d[1];
+            b.classList.remove('locked');
+        } else {
+            b.style.display = '';
+            const u = !!unlockedWeapons[d[0]];
+            b.textContent = u ? d[1] : (d[1] + ' (' + d[2] + '🪙)');
+            b.classList.toggle('locked', !u);
+        }
+    });
+    const gj = document.getElementById('grenade-joystick-container');
+    if (gj) gj.style.display = (unlockedWeapons.grenade && !mpActive) ? 'flex' : 'none';
+}
+
+function mpApplyUI() {
+    document.querySelectorAll('.sp-only').forEach(el => { el.style.display = mpActive ? 'none' : ''; });
+    document.getElementById('opp-stat').style.display = mpActive ? 'inline' : 'none';
+    document.getElementById('btn-pause').style.display = mpActive ? 'none' : '';
+    document.getElementById('btn-leave').style.display = (mpActive && isGameStarted) ? 'inline-block' : 'none';
+    refreshWeaponButtons();
+}
+
+function mpRestoreSpWeapon() {
+    const w = unlockedWeapons[currentWeapon] ? currentWeapon : 'single';
+    selectWeapon(w);
+}
+
+function mpRenderPanel() {
+    const panel = document.getElementById('mp-panel');
+    if (!panel) return;
+    panel.style.display = mpActive ? 'flex' : 'none';
+    if (!mpActive) return;
+    const busy = !!mpPeer;
+    document.getElementById('mp-menu').style.display = busy ? 'none' : 'flex';
+    document.getElementById('mp-room').style.display = (mpRole === 'host' && busy && !mpConnected && mpRoomCode) ? 'block' : 'none';
+    document.getElementById('mp-actions').style.display = busy ? 'flex' : 'none';
+    document.getElementById('mp-rematch-btn').style.display = (mpConnected && mpRole === 'host' && (!isGameStarted || isGameOver)) ? 'inline-block' : 'none';
+    document.getElementById('mp-leave-btn').textContent = mpConnected ? '✖ Ayrıl' : '✖ İptal';
+}
+
+function mpRandCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = '';
+    for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+}
+
+function mpCleanup() {
+    const c = mpConn, p = mpPeer;
+    mpConn = null; mpPeer = null; mpConnected = false; mpRoomCode = '';
+    try { if (c) c.close(); } catch (e) {}
+    try { if (p) p.destroy(); } catch (e) {}
+}
+
+function mpFail(err) {
+    mpSetStatus('Bağlantı hatası' + (err && err.type ? ' (' + err.type + ')' : '') + '. Tekrar dene.');
+    mpCleanup();
+    mpRenderPanel();
+}
+
+function mpHost() {
+    initAudio();
+    if (!mpLibOk()) return;
+    mpCleanup();
+    mpRole = 'host';
+    mpHostTry(0);
+}
+
+function mpHostTry(n) {
+    const code = mpRandCode();
+    const p = new Peer('cephede-' + code);
+    mpPeer = p;
+    mpSetStatus('Sunucuya bağlanılıyor...');
+    mpRenderPanel();
+    p.on('open', () => {
+        if (p !== mpPeer) return;
+        mpRoomCode = code;
+        document.getElementById('mp-room-code').textContent = code;
+        mpSetStatus('Rakip bekleniyor... Kodu arkadaşınla paylaş.');
+        mpRenderPanel();
+    });
+    p.on('connection', c => {
+        if (p !== mpPeer) return;
+        if (mpConn) { c.on('open', () => { try { c.close(); } catch (e) {} }); return; }
+        mpAttach(c);
+    });
+    p.on('error', err => {
+        if (p !== mpPeer) return;
+        if (err && err.type === 'unavailable-id' && n < 3) {
+            mpPeer = null;
+            try { p.destroy(); } catch (e) {}
+            mpHostTry(n + 1);
+            return;
+        }
+        mpFail(err);
+    });
+}
+
+function mpJoin() {
+    initAudio();
+    const input = document.getElementById('mp-code-input');
+    const code = (input.value || '').trim().toUpperCase();
+    if (code.length < 4) { mpSetStatus('Lütfen oda kodunu gir.'); return; }
+    if (!mpLibOk()) return;
+    mpCleanup();
+    mpRole = 'guest';
+    const p = new Peer();
+    mpPeer = p;
+    mpSetStatus('Odaya bağlanılıyor...');
+    mpRenderPanel();
+    p.on('open', () => {
+        if (p !== mpPeer) return;
+        const c = p.connect('cephede-' + code, { reliable: true, serialization: 'json' });
+        mpAttach(c);
+    });
+    p.on('error', err => {
+        if (p !== mpPeer) return;
+        if (err && err.type === 'peer-unavailable') {
+            mpCleanup();
+            mpSetStatus('Oda bulunamadı. Kodu kontrol et.');
+            mpRenderPanel();
+        } else mpFail(err);
+    });
+}
+
+function mpAttach(c) {
+    mpConn = c;
+    const onOpen = () => {
+        if (c !== mpConn) return;
+        mpConnected = true;
+        mpSetStatus('Rakip bağlandı!');
+        mpRenderPanel();
+        if (mpRole === 'host') mpHostStartMatch();
+    };
+    if (c.open) onOpen(); else c.on('open', onOpen);
+    c.on('data', d => { if (c === mpConn) mpOnData(d); });
+    c.on('close', () => { if (c === mpConn) mpOnClose(); });
+    c.on('error', () => { if (c === mpConn) mpOnClose(); });
+}
+
+function mpHostStartMatch() {
+    if (mpRole !== 'host' || !mpConnected) return;
+    initAudio();
+    const maps = ['park', 'kanal', 'sehir'];
+    const m = maps[Math.floor(Math.random() * maps.length)];
+    mpSend({ t: 'start', map: m });
+    mpBeginMatch(m);
+}
+
+function mpBeginMatch(map) {
+    mpResult = null;
+    setGameMap(map);          // haritayı kurar (çok oyunculuda araçlar kapalı)
+    startGame();              // başlangıç ekranını kapatır, resetGame() ile konumlandırır
+    mpApplyUI();
+    mpRenderPanel();
+    mpToast('Harita: ' + (MAP_NAMES[map] || map) + ' • fareyle bakmak için ekrana tıkla');
+}
+
+function mpOnData(d) {
+    if (!d || !d.t) return;
+    switch (d.t) {
+        case 'start':
+            if (mpRole === 'guest') mpBeginMatch(d.map);
+            break;
+        case 's':
+            remote.tx = d.x; remote.ty = d.y; remote.tangle = d.a;
+            remote.hp = d.hp; remote.w = d.w;
+            if (!remote.init) { remote.x = d.x; remote.y = d.y; remote.angle = d.a; remote.init = true; }
+            document.getElementById('opp-hp').textContent = Math.max(0, Math.round(d.hp));
+            break;
+        case 'shot':
+            if (!isGameStarted || isGameOver) break;
+            (d.b || []).forEach(o => {
+                bullets.push({ x: o.x, y: o.y, vx: o.vx, vy: o.vy, radius: o.r, color: '#ff7043', isEnemy: true, remote: true, damage: d.d });
+            });
+            remote.lastShot = Date.now();
+            if (d.w) remote.w = d.w;
+            playShootSound();
+            break;
+        case 'h':
+            playHitSound();
+            break;
+        case 'dead':
+            remote.hp = 0;
+            document.getElementById('opp-hp').textContent = 0;
+            if (mpResult === 'lose') {
+                mpResult = 'draw';
+            } else if (!mpResult) {
+                mpResult = 'win';
+                isGameOver = true;
+                setTimeout(mpDisplayResult, 900);
+            }
+            break;
+    }
+}
+
+function mpSendState(now) {
+    if (now - mpLastSend < 50) return;
+    mpLastSend = now;
+    mpSend({ t: 's', x: +player.x.toFixed(1), y: +player.y.toFixed(1), a: +player.angle.toFixed(3), hp: player.hp, w: currentWeapon });
+}
+
+function mpOnLocalDeath() {
+    if (mpResult) return;
+    mpResult = 'lose';
+    mpSend({ t: 'dead' });
+    setTimeout(mpDisplayResult, 900);
+}
+
+function mpDisplayResult() {
+    if (!mpActive || !mpResult || !isGameOver) return;
+    const T = { win: 'KAZANDIN! 🏆', lose: 'KAYBETTİN!', draw: 'BERABERE!', left: 'RAKİP AYRILDI — KAZANDIN! 🏆' };
+    screenTitle.textContent = T[mpResult] || 'MAÇ BİTTİ';
+    screenScore.textContent = mpConnected ? 'Bağlantı açık — yeni maçı oda kurucusu başlatır (harita rastgele).' : 'Bağlantı kapandı.';
+    startScreen.style.display = 'flex';
+    mpApplyUI();
+    mpRenderPanel();
+}
+
+function mpOnClose() {
+    const during = isGameStarted && !isGameOver;
+    const c = mpConn, p = mpPeer;
+    mpConn = null; mpPeer = null; mpConnected = false; mpRoomCode = '';
+    try { if (c) c.close(); } catch (e) {}
+    try { if (p) p.destroy(); } catch (e) {}
+    mpSetStatus('Rakip ayrıldı. Yeni bir oda kurabilir veya katılabilirsin.');
+    if (during) {
+        mpResult = 'left';
+        isGameOver = true;
+        mpDisplayResult();
+    }
+    mpRenderPanel();
+}
+
+function mpLeave() {
+    mpCleanup();
+    mpResult = null;
+    isGameStarted = false;
+    isGameOver = false;
+    remote.active = false;
+    remote.init = false;
+    bullets = [];
+    startScreen.style.display = 'flex';
+    screenTitle.textContent = 'Cephede tek başına V1.3';
+    screenScore.textContent = 'Arkadaşınla 1v1 savaş • harita rastgele seçilir';
+    mpSetStatus('Oda kur ve kodu arkadaşına gönder ya da gelen kodla katıl.');
+    mpApplyUI();
+    mpRenderPanel();
+}
+
+function updateRemote3D() {
+    const p = remote3d;
+    const show = mpActive && isGameStarted && remote.active;
+    p.group.visible = show;
+    if (!show) return;
+
+    const moving = Math.hypot(remote.tx - remote.x, remote.ty - remote.y) > 0.8;
+    remote.x += (remote.tx - remote.x) * 0.3;
+    remote.y += (remote.ty - remote.y) * 0.3;
+    const da = Math.atan2(Math.sin(remote.tangle - remote.angle), Math.cos(remote.tangle - remote.angle));
+    remote.angle += da * 0.3;
+    remote.walk = moving ? remote.walk + 0.2 : 0;
+
+    const dead = remote.hp <= 0;
+    p.group.position.set(remote.x, 0, remote.y);
+    p.model.rotation.y = -remote.angle;
+    p.model.rotation.z = dead ? Math.PI / 2 : 0;
+    p.model.position.y = dead ? 12 : Math.abs(Math.sin(remote.walk)) * 1.2;
+    animateLegs(p, remote.walk);
+    for (const k in p.weapons) p.weapons[k].visible = (k === remote.w);
+    p.flash.visible = !dead && (Date.now() - remote.lastShot) < 55;
+    setBar(p.bar, remote.hp / 100);
+    p.bar.grp.quaternion.copy(camera.quaternion);
+}
+
+mpApplyUI();
 
 gameLoop();
 </script>
