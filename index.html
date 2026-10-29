@@ -3307,8 +3307,11 @@ function mpHostStartMatch() {
     mpBeginMatch(m);
 }
 
+let mpRewarded = false;
+const MP_WIN_GOLD = 60;
 function mpBeginMatch(map) {
     mpResult = null;
+    mpRewarded = false;
     mpSendProfile();
     setGameMap(map);          // haritayı kurar (çok oyunculuda araçlar kapalı)
     startGame();              // başlangıç ekranını kapatır, resetGame() ile konumlandırır
@@ -3413,7 +3416,16 @@ function mpDisplayResult() {
     if (!mpActive || !mpResult || !isGameOver) return;
     const T = { win: 'KAZANDIN! 🏆', lose: 'KAYBETTİN!', draw: 'BERABERE!', left: 'RAKİP AYRILDI — KAZANDIN! 🏆' };
     screenTitle.textContent = T[mpResult] || 'MAÇ BİTTİ';
-    screenScore.textContent = mpConnected ? 'Bağlantı açık — yeni maçı oda kurucusu başlatır (harita rastgele).' : 'Bağlantı kapandı.';
+    let winMsg = '';
+    if ((mpResult === 'win' || mpResult === 'left') && !mpRewarded) {
+        mpRewarded = true;
+        gold += MP_WIN_GOLD;
+        saveGold();
+        mpSendProfile();
+        mpRenderScoreboard();
+        winMsg = ' +' + MP_WIN_GOLD + ' 🪙 kazandın! ';
+    }
+    screenScore.textContent = winMsg + (mpConnected ? 'Bağlantı açık — yeni maçı oda kurucusu başlatır (harita rastgele).' : 'Bağlantı kapandı.');
     startScreen.style.display = 'flex';
     mpApplyUI();
     mpRenderPanel();
