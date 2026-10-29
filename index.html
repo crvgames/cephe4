@@ -1834,8 +1834,8 @@ function selectWeapon(type) {
     document.querySelectorAll('.weapon-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('btn-' + type).classList.add('active');
 
-    if (type === 'minigun') player.fireRate = 50;
-    else if (type === 'auto') player.fireRate = 100;
+    if (type === 'minigun') player.fireRate = 60;
+    else if (type === 'auto') player.fireRate = 80;
     else player.fireRate = 200;
     if (mpActive && MP_WEAPONS[type]) player.fireRate = MP_WEAPONS[type].rate;
 }
