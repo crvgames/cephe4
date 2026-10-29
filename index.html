@@ -302,6 +302,134 @@
             -webkit-user-select: text;
             touch-action: auto;
         }
+
+        .corner-btn {
+            position: absolute;
+            top: 12px;
+            z-index: 22;
+            background: linear-gradient(#ffb300, #ff8f00);
+            color: #1a1a1a;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .corner-btn:hover { filter: brightness(1.12); }
+        #btn-open-set { left: 50%; transform: translateX(-50%); background: linear-gradient(#90a4ae, #546e7a); color: #fff; }
+        #btn-open-upg { left: 12px; }
+        #btn-open-char { right: 12px; background: linear-gradient(#66bb6a, #2e7d32); color: #fff; }
+        .sub-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(8, 8, 8, 0.96);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 14px 30px;
+            z-index: 30;
+            overflow-y: auto;
+        }
+        .sub-screen, .sub-screen * { touch-action: auto; }
+        .sub-screen button { touch-action: manipulation; }
+        .sub-head {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .back-btn {
+            background: #d32f2f;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .back-btn:hover { background: #e53935; }
+        .sub-title { font-size: 26px; font-weight: bold; color: #ffeb3b; margin: 0; }
+        .sub-gold { font-size: 18px; font-weight: bold; color: #ffd700; }
+        .card-grid {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+        }
+        .char-card, .upg-card {
+            background: #1f1f1f;
+            border: 2px solid #444;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+        .char-card { width: 250px; }
+        .char-card.selected { border-color: #00e676; box-shadow: 0 0 14px rgba(0,230,118,0.45); }
+        .upg-card { width: 100%; max-width: 440px; text-align: left; }
+        .char-figure {
+            width: 54px; height: 100px;
+            margin: 4px auto 8px;
+            position: relative;
+        }
+        .char-figure .head { position:absolute; left:15px; top:0; width:24px; height:24px; border-radius:50%; background:#f1c9a0; }
+        .char-figure .cap { position:absolute; left:14px; top:-2px; width:26px; height:13px; border-radius:13px 13px 0 0; background:#0d47a1; }
+        .char-figure .body { position:absolute; left:9px; top:26px; width:36px; height:42px; border-radius:6px; }
+        .char-figure .arm { position:absolute; top:28px; width:9px; height:34px; border-radius:4px; }
+        .char-figure .leg { position:absolute; top:68px; width:13px; height:32px; background:#252a31; border-radius:3px; }
+        .char-name { font-size: 22px; font-weight: bold; color: #fff; margin-bottom: 6px; }
+        .char-stat { font-size: 14px; color: #bbb; margin: 2px 0; }
+        .char-stat b { color: #76ff03; }
+        .act-btn {
+            margin-top: 10px;
+            background: #2196F3;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .act-btn.buy { background: #ff9800; color: #1a1a1a; }
+        .act-btn.on { background: #00c853; }
+        .act-btn:disabled, .act-btn.dis { background: #3a3a3a; color: #888; border-color: #555; cursor: not-allowed; }
+        .upg-title { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 8px; }
+        .upg-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-top: 1px solid #333; flex-wrap: wrap; }
+        .upg-row:first-of-type { border-top: none; }
+        .upg-info { font-size: 14px; color: #ccc; flex: 1; min-width: 150px; }
+        .upg-info b { color: #ffeb3b; }
+        .pips { display:flex; gap:3px; margin-top:5px; }
+        .pip { width: 14px; height: 8px; border-radius: 2px; background: #3a3a3a; }
+        .pip.on { background: #00e676; }
+        .upg-row .act-btn { margin-top: 0; padding: 7px 12px; font-size: 14px; }
+        #mp-scoreboard {
+            position: fixed;
+            left: 12px;
+            top: 62px;
+            min-width: 190px;
+            background: rgba(0,0,0,0.72);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 10px;
+            padding: 8px 12px;
+            z-index: 21;
+            display: none;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        #mp-scoreboard .sb-title { color: #ffeb3b; font-weight: bold; font-size: 13px; margin-bottom: 4px; letter-spacing: 1px; }
+        #mp-scoreboard .sb-row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+        #mp-scoreboard .sb-row.me { color: #76ff03; }
+        #mp-scoreboard .sb-gold { color: #ffd700; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -334,9 +462,12 @@
 <div id="panel-toggle-strip" onclick="toggleTopPanel(false)">▲ Paneli Göster</div>
 
 <div id="start-screen">
+    <button class="corner-btn" id="btn-open-set" onclick="openSubMenu('set-screen')">⚙ Ayarlar</button>
+    <button class="corner-btn" id="btn-open-upg" onclick="openSubMenu('upg-screen')">🔧 Yükseltmeler</button>
+    <button class="corner-btn" id="btn-open-char" onclick="openSubMenu('char-screen')">🧑 Karakterler</button>
     <h1 id="screen-title">Cephede tek başına V1.3</h1>
     <div class="score-info" id="screen-score">En Yüksek Skor: <span id="start-high-score">0</span></div>
-    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • C kamera değiştir • Fare Tekerleği: Silah Değiştir • Sağ tık (basılı tut) / N: nişangah (1. şahıs; Glock, Desert Eagle, M-60, RPG) • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
+    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • C kamera değiştir • Fare Tekerleği: Silah Değiştir • Sağ tık (basılı tut) / N: nişangah (1. şahıs; Glock, Desert Eagle, M-60) • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
     
     <div class="map-container" id="map-container">
         <button class="map-btn selected" id="map-park" onclick="setGameMap('park')">Kentleşmiş Park</button>
@@ -388,6 +519,47 @@
         <button class="prompt-btn" id="btn-devam" onclick="onWavePromptChoice('devam')">Devam</button>
     </div>
 </div>
+
+<div id="char-screen" class="sub-screen">
+    <div class="sub-head">
+        <button class="back-btn" onclick="closeSubMenus()">← Ana Menüye Dön</button>
+        <h2 class="sub-title">Karakterler</h2>
+        <div class="sub-gold">Altın: 🪙<span class="gold-live">0</span></div>
+    </div>
+    <div class="card-grid" id="char-list"></div>
+</div>
+
+<div id="upg-screen" class="sub-screen">
+    <div class="sub-head">
+        <button class="back-btn" onclick="closeSubMenus()">← Ana Menüye Dön</button>
+        <h2 class="sub-title">Silah Yükseltmeleri</h2>
+        <div class="sub-gold">Altın: 🪙<span class="gold-live">0</span></div>
+    </div>
+    <div style="font-size:13px;color:#aaa;margin-bottom:12px;text-align:center;max-width:900px;">Her yükseltme en fazla 10 seviye • seviye başına 50🪙 • hasar yükseltmeleri tek oyunculu modda geçerlidir</div>
+    <div class="card-grid" id="upg-list"></div>
+</div>
+
+<div id="set-screen" class="sub-screen">
+    <div class="sub-head">
+        <button class="back-btn" onclick="closeSubMenus()">← Ana Menüye Dön</button>
+        <h2 class="sub-title">Ayarlar</h2>
+        <div class="sub-gold">Altın: 🪙<span class="gold-live">0</span></div>
+    </div>
+    <div class="card-grid">
+        <div class="upg-card">
+            <div class="upg-title">Hesabı Sıfırla</div>
+            <div class="upg-info" style="margin-bottom:10px;">Altın, açılan silahlar ve karakterler, silah yükseltmeleri ve en yüksek skor silinir. Bu işlem geri alınamaz.</div>
+            <button class="act-btn buy" id="reset-ask-btn" onclick="resetAskToggle(true)">Hesabı Sıfırla</button>
+            <div id="reset-confirm" style="display:none;margin-top:10px;">
+                <div style="color:#ff8a80;font-weight:bold;margin-bottom:6px;">Emin misin? Tüm ilerleme silinecek.</div>
+                <button class="act-btn" style="background:#d32f2f;margin-top:0;" onclick="resetAccount()">Evet, sıfırla</button>
+                <button class="act-btn" style="background:#555;margin-top:0;margin-left:8px;" onclick="resetAskToggle(false)">Vazgeç</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mp-scoreboard"></div>
 
 <canvas id="gameCanvas"></canvas>
 
@@ -1053,10 +1225,12 @@ function createHuman(kind, color) {
         model.add(leg);
         legs.push(leg);
     });
-    part(gBox(14, 24, 24), M(color), 0, 36, 0, model);          // gövde
+    const bodyMat = isPlayer ? M(color).clone() : M(color);
+    const armMat = isPlayer ? M(shade).clone() : M(shade);
+    part(gBox(14, 24, 24), bodyMat, 0, 36, 0, model);          // gövde
     part(gBox(15, 3, 25), isMega ? M(0xb71c1c, { emissive: 0x7f0000, emissiveIntensity: 0.8 }) : M(0x1b1b1b), 0, 25, 0, model);        // kemer
     [-12, 12].forEach(z => {
-        part(gBox(18, 6, 6), M(shade), 9, 41, z, model);        // kol
+        part(gBox(18, 6, 6), armMat, 9, 41, z, model);        // kol
         part(gBox(5, 5, 5), M(skin), 19, 41, z * 0.75, model);  // el
     });
     part(gSphere(8, 16, 12), M(skin), 0, 57, 0, model);          // kafa
@@ -1107,7 +1281,7 @@ function createHuman(kind, color) {
     const bar = createBar(isMega ? 150 : (isBoss ? 90 : (isPlayer ? 40 : 34)), isMega ? 10 : (isBoss ? 8 : 5), isBoss ? 62 * sc + 16 : 80, isMega ? 0xd50000 : (isBoss ? 0xab47bc : (isPlayer ? 0x76ff03 : 0xff1744)));
     root.add(bar.grp);
 
-    return { group: root, model: model, legs: legs, weapons: weapons, flash: flash, bar: bar };
+    return { group: root, model: model, legs: legs, weapons: weapons, flash: flash, bar: bar, bodyMat: bodyMat, armMat: armMat };
 }
 
 const player3d = createHuman('player', 0x2196F3);
@@ -1711,6 +1885,270 @@ const player = {
     walkCycle: 0
 };
 
+// =====================================================================
+//  KARAKTERLER, SİLAH YÜKSELTMELERİ, ÇOK OYUNCULU PUAN TABLOSU
+// =====================================================================
+const CHARS = {
+    sevket:   { name: 'Şevket',   color: 0x2196F3, css: '#2196F3', mul: 1,   price: 0 },
+    riza:     { name: 'Rıza',     color: 0x1b5e20, css: '#1b5e20', mul: 1.5, price: 170 },
+    yildiray: { name: 'Yıldıray', color: 0x800020, css: '#800020', mul: 2,   price: 230 }
+};
+const BASE_HP = 100, BASE_SPEED = 4.5;
+const UPG_MAX = 10, UPG_COST = 50, UPG_DMG = 15;
+const UPG_WEAPONS = [
+    ['single', 'Glock'], ['double', 'Desert Eagle'], ['auto', 'M-60'],
+    ['minigun', 'Minigun'], ['grenade', 'Bomba'], ['rpg', 'RPG']
+];
+const UPG_TIME_STEP = { grenade: 50, rpg: 250 };   // ms (seviye başına azalma)
+const MIN_COOLDOWN = 50;
+
+let charData = { owned: { sevket: true, riza: false, yildiray: false }, sel: 'sevket' };
+try {
+    const s = JSON.parse(localStorage.getItem('cephedeChars') || 'null');
+    if (s && s.owned) {
+        charData.owned = Object.assign(charData.owned, s.owned);
+        charData.owned.sevket = true;
+        if (CHARS[s.sel] && charData.owned[s.sel]) charData.sel = s.sel;
+    }
+} catch (e) {}
+
+let upg = {};
+UPG_WEAPONS.forEach(w => { upg[w[0]] = { d: 0, t: 0 }; });
+try {
+    const s = JSON.parse(localStorage.getItem('cephedeUpgrades') || 'null');
+    if (s) UPG_WEAPONS.forEach(w => {
+        const k = w[0];
+        if (s[k]) {
+            upg[k].d = Math.max(0, Math.min(UPG_MAX, parseInt(s[k].d) || 0));
+            upg[k].t = (k in UPG_TIME_STEP) ? Math.max(0, Math.min(UPG_MAX, parseInt(s[k].t) || 0)) : 0;
+        }
+    });
+} catch (e) {}
+
+function saveChars() { localStorage.setItem('cephedeChars', JSON.stringify(charData)); }
+function saveUpg() { localStorage.setItem('cephedeUpgrades', JSON.stringify(upg)); }
+
+// --- yükseltme etkileri ---
+function dmgBonus(w) {
+    if (mpActive || !upg[w]) return 0;
+    return UPG_DMG * upg[w].d;
+}
+function getGrenadeCd() {
+    if (mpActive) return MP_GRENADE_COOLDOWN;
+    return Math.max(MIN_COOLDOWN, grenadeCooldown - UPG_TIME_STEP.grenade * upg.grenade.t);
+}
+function getRpgCd() {
+    if (mpActive) return MP_GRENADE_COOLDOWN;
+    return Math.max(MIN_COOLDOWN, rpgCooldown - UPG_TIME_STEP.rpg * upg.rpg.t);
+}
+
+// --- karakter etkileri ---
+function setHumanColor(h, hex) {
+    h.bodyMat.color.setHex(hex);
+    h.armMat.color.copy(new THREE.Color(hex).multiplyScalar(0.72));
+}
+function applyCharacter() {
+    const c = CHARS[charData.sel] || CHARS.sevket;
+    player.maxHp = Math.round(BASE_HP * c.mul);
+    player.speed = BASE_SPEED * c.mul;
+    if (!isGameStarted) { player.hp = player.maxHp; healthEl.textContent = player.hp; }
+    setHumanColor(player3d, c.color);
+}
+function remoteColorFor(id) {
+    return id === 'sevket' ? 0xf44336 : (CHARS[id] ? CHARS[id].color : 0xf44336);
+}
+
+// --- menüler ---
+function refreshGoldLive() {
+    document.querySelectorAll('.gold-live').forEach(el => { el.textContent = gold; });
+}
+function openSubMenu(id) {
+    renderChars();
+    renderUpgrades();
+    refreshGoldLive();
+    document.getElementById(id).style.display = 'flex';
+}
+function closeSubMenus() {
+    document.getElementById('char-screen').style.display = 'none';
+    document.getElementById('upg-screen').style.display = 'none';
+    document.getElementById('set-screen').style.display = 'none';
+    resetAskToggle(false);
+}
+function resetAskToggle(on) {
+    const c = document.getElementById('reset-confirm'), b = document.getElementById('reset-ask-btn');
+    if (c) c.style.display = on ? 'block' : 'none';
+    if (b) b.style.display = on ? 'none' : '';
+}
+function resetAccount() {
+    ['cephedeGold', 'cephedeWeapons', 'cephedeHighScore', 'cephedeChars', 'cephedeUpgrades'].forEach(k => {
+        try { localStorage.removeItem(k); } catch (e) {}
+    });
+    if (mpActive) { try { mpCleanup(); } catch (e) {} }
+    location.reload();
+}
+function saveGold() {
+    localStorage.setItem('cephedeGold', gold);
+    goldEl.textContent = gold;
+    refreshGoldLive();
+}
+
+function renderChars() {
+    const list = document.getElementById('char-list');
+    if (!list) return;
+    list.innerHTML = '';
+    Object.keys(CHARS).forEach(id => {
+        const c = CHARS[id];
+        const owned = !!charData.owned[id];
+        const selected = charData.sel === id;
+        const card = document.createElement('div');
+        card.className = 'char-card' + (selected ? ' selected' : '');
+        const hp = Math.round(BASE_HP * c.mul);
+        const spd = (BASE_SPEED * c.mul).toFixed(2).replace(/\.?0+$/, '');
+        const pct = Math.round((c.mul - 1) * 100);
+        card.innerHTML =
+            '<div class="char-figure">' +
+              '<div class="leg" style="left:11px"></div><div class="leg" style="left:30px"></div>' +
+              '<div class="arm" style="left:0;background:' + c.css + ';filter:brightness(0.72)"></div>' +
+              '<div class="arm" style="left:45px;background:' + c.css + ';filter:brightness(0.72)"></div>' +
+              '<div class="body" style="background:' + c.css + '"></div>' +
+              '<div class="head"></div><div class="cap"></div>' +
+            '</div>' +
+            '<div class="char-name">' + c.name + '</div>' +
+            '<div class="char-stat">Can: <b>' + hp + '</b>' + (pct ? ' (+%' + pct + ')' : '') + '</div>' +
+            '<div class="char-stat">Yürüme hızı: <b>' + spd + '</b>' + (pct ? ' (+%' + pct + ')' : '') + '</div>';
+        const btn = document.createElement('button');
+        btn.className = 'act-btn';
+        if (selected) { btn.textContent = '✓ Seçili'; btn.classList.add('on'); btn.disabled = true; }
+        else if (owned) { btn.textContent = 'Seç'; btn.onclick = () => selectCharacter(id); }
+        else {
+            btn.textContent = 'Satın al (' + c.price + '🪙)';
+            btn.classList.add('buy');
+            if (gold < c.price) btn.classList.add('dis');
+            btn.onclick = () => buyCharacter(id);
+        }
+        card.appendChild(btn);
+        list.appendChild(card);
+    });
+}
+function buyCharacter(id) {
+    const c = CHARS[id];
+    if (!c || charData.owned[id] || gold < c.price) return;
+    gold -= c.price;
+    charData.owned[id] = true;
+    charData.sel = id;
+    saveChars(); saveGold();
+    applyCharacter();
+    mpSendProfile(); mpRenderScoreboard();
+    renderChars();
+}
+function selectCharacter(id) {
+    if (!CHARS[id] || !charData.owned[id]) return;
+    charData.sel = id;
+    saveChars();
+    applyCharacter();
+    mpSendProfile(); mpRenderScoreboard();
+    renderChars();
+}
+
+function renderUpgrades() {
+    const list = document.getElementById('upg-list');
+    if (!list) return;
+    list.innerHTML = '';
+    UPG_WEAPONS.forEach(w => {
+        const key = w[0], name = w[1];
+        const owned = !!unlockedWeapons[key];
+        const card = document.createElement('div');
+        card.className = 'upg-card';
+        const title = document.createElement('div');
+        title.className = 'upg-title';
+        title.textContent = name + (owned ? '' : ' 🔒');
+        card.appendChild(title);
+        card.appendChild(upgRow(key, 'd', owned));
+        if (key in UPG_TIME_STEP) card.appendChild(upgRow(key, 't', owned));
+        list.appendChild(card);
+    });
+}
+function upgRow(key, kind, owned) {
+    const lvl = upg[key][kind];
+    const row = document.createElement('div');
+    row.className = 'upg-row';
+    const info = document.createElement('div');
+    info.className = 'upg-info';
+    let label, cur;
+    if (kind === 'd') {
+        label = 'Hasar';
+        cur = '+' + (UPG_DMG * lvl) + ' hasar <span style="color:#888">(her seviye +' + UPG_DMG + ')</span>';
+    } else {
+        label = 'Süre';
+        const step = UPG_TIME_STEP[key];
+        cur = '-' + (step * lvl) + ' ms <span style="color:#888">(her seviye -' + step + ' ms)</span>';
+    }
+    let pips = '';
+    for (let i = 0; i < UPG_MAX; i++) pips += '<div class="pip' + (i < lvl ? ' on' : '') + '"></div>';
+    info.innerHTML = '<b>' + label + '</b> • Seviye ' + lvl + '/' + UPG_MAX + '<br>' + cur + '<div class="pips">' + pips + '</div>';
+    const btn = document.createElement('button');
+    btn.className = 'act-btn buy';
+    if (lvl >= UPG_MAX) { btn.textContent = 'MAKS'; btn.disabled = true; }
+    else if (!owned) { btn.textContent = 'Silah kilitli'; btn.classList.add('dis'); }
+    else {
+        btn.textContent = 'Yükselt (' + UPG_COST + '🪙)';
+        if (gold < UPG_COST) btn.classList.add('dis');
+        btn.onclick = () => buyUpgrade(key, kind);
+    }
+    row.appendChild(info);
+    row.appendChild(btn);
+    return row;
+}
+function buyUpgrade(key, kind) {
+    if (!unlockedWeapons[key]) return;
+    if (kind === 't' && !(key in UPG_TIME_STEP)) return;
+    if (upg[key][kind] >= UPG_MAX || gold < UPG_COST) return;
+    gold -= UPG_COST;
+    upg[key][kind]++;
+    saveUpg(); saveGold();
+    mpSendProfile(); mpRenderScoreboard();
+    renderUpgrades();
+}
+
+// --- çok oyunculu: profil paylaşımı ve puan tablosu ---
+function mpSendProfile() {
+    if (typeof mpSend === 'function' && mpConn) mpSend({ t: 'p', g: gold, c: charData.sel });
+}
+function mpApplyRemoteProfile(d) {
+    if (!d) return;
+    const id = CHARS[d.c] ? d.c : 'sevket';
+    remote.char = id;
+    remote.gold = Math.max(0, parseInt(d.g) || 0);
+    const newMax = Math.round(BASE_HP * CHARS[id].mul);
+    const wasFull = !isGameStarted || remote.hp >= remote.maxHp;
+    remote.maxHp = newMax;
+    if (wasFull) {
+        remote.hp = newMax;
+        const el = document.getElementById('opp-hp');
+        if (el) el.textContent = newMax;
+    }
+    setHumanColor(remote3d, remoteColorFor(id));
+    mpRenderScoreboard();
+}
+function mpRenderScoreboard() {
+    const el = document.getElementById('mp-scoreboard');
+    if (!el) return;
+    if (!(mpActive && mpConnected)) { el.style.display = 'none'; return; }
+    const rows = [
+        { me: true,  name: 'Sen',   ch: (CHARS[charData.sel] || CHARS.sevket).name, g: gold },
+        { me: false, name: 'Rakip', ch: (CHARS[remote.char] || CHARS.sevket).name, g: remote.gold || 0 }
+    ];
+    rows.sort((a, b) => b.g - a.g);
+    const medals = ['🥇', '🥈'];
+    let html = '<div class="sb-title">PUAN TABLOSU • ALTIN</div>';
+    rows.forEach((r, i) => {
+        html += '<div class="sb-row' + (r.me ? ' me' : '') + '"><span>' + (medals[i] || '') + ' ' + r.name +
+                ' <span style="color:#999">(' + r.ch + ')</span></span><span class="sb-gold">🪙 ' + r.g + '</span></div>';
+    });
+    el.innerHTML = html;
+    el.style.display = 'block';
+}
+
 let obstacles = [];
 let sewagePools = [];
 let movingCars = [];
@@ -1944,7 +2382,7 @@ function handleShooting() {
 
 function fireRpg() {
     const now = Date.now();
-    if (now - lastRpgTime < (mpActive ? MP_GRENADE_COOLDOWN : rpgCooldown)) return;
+    if (now - lastRpgTime < getRpgCd()) return;
     lastRpgTime = now;
 
     const target = getRpgTarget();
@@ -1965,7 +2403,7 @@ function fireRpg() {
 
 function throwGrenade() {
     const now = Date.now();
-    if (now - lastGrenadeTime < (mpActive ? MP_GRENADE_COOLDOWN : grenadeCooldown)) return;
+    if (now - lastGrenadeTime < getGrenadeCd()) return;
     lastGrenadeTime = now;
 
     const gt0 = getGrenadeTarget();
@@ -1982,7 +2420,7 @@ function throwGrenade() {
 
     enemies.forEach(en => {
         if (Math.hypot(en.x - targetX, en.y - targetY) < 70 + en.radius) {
-            en.hp -= 200;
+            en.hp -= 200 + dmgBonus('grenade');
         }
     });
 }
@@ -2021,15 +2459,15 @@ function shootBulletCore(fromX, fromY, targetX, targetY, isEnemy, isBoss = false
             bullets.push({
                 x: fromX + offsetX, y: fromY + offsetY,
                 vx: Math.cos(angle) * 11, vy: Math.sin(angle) * 11,
-                radius: 4, color: "#00e676", isEnemy: false, damage: 18
+                radius: 4, color: "#00e676", isEnemy: false, damage: 18 + dmgBonus('minigun')
             });
         }
     } else if (!isEnemy && currentWeapon === 'double') {
         const perpAngle = angle + Math.PI / 2;
         const offset = 14;
         bullets.push(
-            { x: fromX + Math.cos(perpAngle) * offset, y: fromY + Math.sin(perpAngle) * offset, vx: Math.cos(angle) * 9, vy: Math.sin(angle) * 9, radius: 5, color: "#ffeb3b", isEnemy: false, damage: 20 },
-            { x: fromX - Math.cos(perpAngle) * offset, y: fromY - Math.sin(perpAngle) * offset, vx: Math.cos(angle) * 9, vy: Math.sin(angle) * 9, radius: 5, color: "#ffeb3b", isEnemy: false, damage: 20 }
+            { x: fromX + Math.cos(perpAngle) * offset, y: fromY + Math.sin(perpAngle) * offset, vx: Math.cos(angle) * 9, vy: Math.sin(angle) * 9, radius: 5, color: "#ffeb3b", isEnemy: false, damage: 20 + dmgBonus('double') },
+            { x: fromX - Math.cos(perpAngle) * offset, y: fromY - Math.sin(perpAngle) * offset, vx: Math.cos(angle) * 9, vy: Math.sin(angle) * 9, radius: 5, color: "#ffeb3b", isEnemy: false, damage: 20 + dmgBonus('double') }
         );
     } else {
         bullets.push({
@@ -2039,7 +2477,7 @@ function shootBulletCore(fromX, fromY, targetX, targetY, isEnemy, isBoss = false
             radius: isBoss ? 10 : 5,
             color: isEnemy ? (isBoss ? "#e91e63" : "#ff5252") : "#ffeb3b",
             isEnemy: isEnemy,
-            damage: isEnemy ? (isBoss ? 30 : 10) : 25
+            damage: isEnemy ? (isBoss ? 30 : 10) : 25 + dmgBonus(currentWeapon)
         });
     }
 }
@@ -2173,8 +2611,8 @@ function resetGame() {
         remote.x = remote.tx = hostSide ? WORLD_W - 100 : 100;
         remote.y = remote.ty = WORLD_H / 2;
         remote.angle = remote.tangle = hostSide ? Math.PI : 0;
-        remote.hp = 100; remote.w = 'single'; remote.walk = 0; remote.lastShot = 0;
-        document.getElementById('opp-hp').textContent = 100;
+        remote.hp = remote.maxHp; remote.w = 'single'; remote.walk = 0; remote.lastShot = 0;
+        document.getElementById('opp-hp').textContent = remote.maxHp;
         selectWeapon(MP_WEAPONS[currentWeapon] ? currentWeapon : 'single');
     }
     lookPitch = 0;
@@ -2219,7 +2657,7 @@ function update() {
     if (unlockedWeapons.grenade) {
         const grenadeBtn = document.getElementById('btn-grenade');
         if (grenadeBtn) {
-            const timeLeft = grenadeCooldown - (Date.now() - lastGrenadeTime);
+            const timeLeft = getGrenadeCd() - (Date.now() - lastGrenadeTime);
             if (timeLeft > 0) {
                 grenadeBtn.textContent = `Bomba (${(timeLeft / 1000).toFixed(1)}s)`;
             } else {
@@ -2231,7 +2669,7 @@ function update() {
     if (unlockedWeapons.rpg) {
         const rpgBtn = document.getElementById('btn-rpg');
         if (rpgBtn) {
-            const timeLeft = rpgCooldown - (Date.now() - lastRpgTime);
+            const timeLeft = getRpgCd() - (Date.now() - lastRpgTime);
             if (timeLeft > 0) {
                 rpgBtn.textContent = `RPG (${(timeLeft / 1000).toFixed(1)}s)`;
             } else {
@@ -2502,7 +2940,7 @@ function update() {
             // Etki alanı içerisindeki tüm düşmanlara 400 Hasar vur
             enemies.forEach(en => {
                 if (Math.hypot(en.x - r.targetX, en.y - r.targetY) < 210 + en.radius) {
-                    en.hp -= 400;
+                    en.hp -= 400 + dmgBonus('rpg');
                 }
             });
 
@@ -2679,7 +3117,7 @@ const MP_WEAPONS = {
 };
 const MP_GRENADE_COOLDOWN = 2000;
 const MAP_NAMES = { park: 'Kentleşmiş Park', kanal: 'Kanalizasyon', sehir: 'Şehir İçi' };
-const remote = { active: false, x: 0, y: 0, tx: 0, ty: 0, angle: 0, tangle: 0, hp: 100, w: 'single', radius: 18, lastShot: 0, walk: 0, init: false };
+const remote = { active: false, x: 0, y: 0, tx: 0, ty: 0, angle: 0, tangle: 0, hp: 100, maxHp: 100, gold: 0, char: 'sevket', w: 'single', radius: 18, lastShot: 0, walk: 0, init: false };
 
 let mpPeer = null, mpConn = null, mpConnected = false, mpRole = null, mpRoomCode = '';
 let mpResult = null, mpLastSend = 0;
@@ -2746,6 +3184,7 @@ function mpRestoreSpWeapon() {
 }
 
 function mpRenderPanel() {
+    mpRenderScoreboard();
     const panel = document.getElementById('mp-panel');
     if (!panel) return;
     panel.style.display = mpActive ? 'flex' : 'none';
@@ -2849,6 +3288,7 @@ function mpAttach(c) {
         if (c !== mpConn) return;
         mpConnected = true;
         mpSetStatus('Rakip bağlandı!');
+        mpSendProfile();
         mpRenderPanel();
         if (mpRole === 'host') mpHostStartMatch();
     };
@@ -2869,6 +3309,7 @@ function mpHostStartMatch() {
 
 function mpBeginMatch(map) {
     mpResult = null;
+    mpSendProfile();
     setGameMap(map);          // haritayı kurar (çok oyunculuda araçlar kapalı)
     startGame();              // başlangıç ekranını kapatır, resetGame() ile konumlandırır
     mpApplyUI();
@@ -2881,6 +3322,9 @@ function mpOnData(d) {
     switch (d.t) {
         case 'start':
             if (mpRole === 'guest') mpBeginMatch(d.map);
+            break;
+        case 'p':
+            mpApplyRemoteProfile(d);
             break;
         case 's':
             remote.tx = d.x; remote.ty = d.y; remote.tangle = d.a;
@@ -3028,9 +3472,13 @@ function updateRemote3D() {
     animateLegs(p, remote.walk);
     for (const k in p.weapons) p.weapons[k].visible = (k === remote.w);
     p.flash.visible = !dead && (Date.now() - remote.lastShot) < 55;
-    setBar(p.bar, remote.hp / 100);
+    setBar(p.bar, remote.hp / (remote.maxHp || 100));
     p.bar.grp.quaternion.copy(camera.quaternion);
 }
+
+applyCharacter();
+setHumanColor(remote3d, remoteColorFor('sevket'));
+refreshGoldLive();
 
 mpApplyUI();
 
