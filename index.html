@@ -321,7 +321,7 @@
     <button class="weapon-btn locked" id="btn-auto" onclick="selectWeapon('auto')">M-60 (50🪙)</button>
     <button class="weapon-btn locked" id="btn-minigun" onclick="selectWeapon('minigun')">Minigun (100🪙)</button>
     <button class="weapon-btn locked" id="btn-grenade" onclick="selectWeapon('grenade')">Bomba (70🪙)</button>
-    <button class="weapon-btn locked" id="btn-rpg" onclick="selectWeapon('rpg')">RPG (200🪙)</button>
+    <button class="weapon-btn locked" id="btn-rpg" onclick="selectWeapon('rpg')">RPG (250🪙)</button>
     <div style="border-left: 2px solid #555; height: 25px;"></div>
     <button class="ctrl-btn" id="btn-pause" onclick="togglePause()">Durdur</button>
     <button class="ctrl-btn" id="btn-leave" onclick="mpLeave()" style="display:none;background:#b71c1c;">Ayrıl</button>
@@ -336,7 +336,7 @@
 <div id="start-screen">
     <h1 id="screen-title">Cephede tek başına V1.3</h1>
     <div class="score-info" id="screen-score">En Yüksek Skor: <span id="start-high-score">0</span></div>
-    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • C kamera değiştir •DİKKAT ÇOK OYUNCULUDA KENDİ ATTIĞINIZ VE DÜŞMANIN RPGLERİNDEN UZAK DURUN • Fare Tekerleği: Silah Değiştir • Sağ tık (basılı tut) / N: nişangah (1. şahıs; Glock, Desert Eagle, M-60) • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
+    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • C kamera değiştir • Fare Tekerleği: Silah Değiştir • Sağ tık (basılı tut) / N: nişangah (1. şahıs; Glock, Desert Eagle, M-60) • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
     
     <div class="map-container" id="map-container">
         <button class="map-btn selected" id="map-park" onclick="setGameMap('park')">Kentleşmiş Park</button>
@@ -1823,8 +1823,8 @@ function selectWeapon(type) {
         } else return;
     }
     if (!mpActive && type === 'rpg' && !unlockedWeapons.rpg) {
-        if (gold >= 200) {
-            gold -= 200; unlockedWeapons.rpg = true;
+        if (gold >= 250) {
+            gold -= 250; unlockedWeapons.rpg = true;
             saveAndUnlock('rpg', "RPG");
             document.getElementById('grenade-joystick-container').style.display = 'flex';
         } else return;
@@ -1982,7 +1982,7 @@ function throwGrenade() {
 
     enemies.forEach(en => {
         if (Math.hypot(en.x - targetX, en.y - targetY) < 70 + en.radius) {
-            en.hp -= 250;
+            en.hp -= 200;
         }
     });
 }
@@ -2618,7 +2618,7 @@ function gameLoop() {
 //  Sağ tık (basılı) • N tuşu (klavye) • ekrandaki mavi N butonu (basılı)
 // =====================================================================
 let scopeMouse = false, scopeBtnHeld = false, scopeKey = false, scopeAmt = 0;
-const SCOPE_WEAPONS = { single: true, double: true, auto: true };
+const SCOPE_WEAPONS = { single: true, double: true, auto: true, rpg: true };
 const scopeBtn = document.getElementById('scope-btn');
 const scopeEl = document.createElement('div');
 scopeEl.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:6;display:none;opacity:0;' +
@@ -2713,7 +2713,7 @@ function mpLibOk() {
 }
 
 function refreshWeaponButtons() {
-    const defs = [['single', 'Glock', 0], ['double', 'Desert Eagle', 30], ['auto', 'M-60', 50], ['minigun', 'Minigun', 100], ['grenade', 'Bomba', 70], ['rpg', 'RPG', 200]];
+    const defs = [['single', 'Glock', 0], ['double', 'Desert Eagle', 30], ['auto', 'M-60', 50], ['minigun', 'Minigun', 100], ['grenade', 'Bomba', 70], ['rpg', 'RPG', 250]];
     defs.forEach(d => {
         const b = document.getElementById('btn-' + d[0]);
         if (!b) return;
