@@ -303,6 +303,52 @@
             touch-action: auto;
         }
 
+
+        .menu-page { display: none; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 70px; max-width: 94%; }
+        .menu-page.active { display: flex; }
+        .menu-big {
+            width: min(340px, 82vw);
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            background: #333;
+        }
+        .menu-big:hover { filter: brightness(1.12); }
+        .menu-big.mb-sp { background: linear-gradient(#ef5350, #c62828); }
+        .menu-big.mb-mp { background: linear-gradient(#42a5f5, #1565c0); }
+        .menu-big.mb-char { background: linear-gradient(#66bb6a, #2e7d32); }
+        .menu-big.mb-upg { background: linear-gradient(#ffb300, #ff8f00); color: #1a1a1a; }
+        .menu-big.mb-set { background: linear-gradient(#90a4ae, #546e7a); }
+        .menu-big.mode-btn, .menu-big.map-btn { color: #aaa; border-color: #555; }
+        .menu-big.mode-btn.selected, .menu-big.map-btn.selected { color: #fff; border-color: #fff; }
+        #map-container { flex-direction: column; margin-bottom: 0; }
+        .nav-corner {
+            position: absolute;
+            bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+            display: none;
+            gap: 10px;
+            z-index: 22;
+        }
+        #nav-left { left: 14px; }
+        #nav-right { right: 14px; }
+        .nav-btn {
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(#78909c, #455a64);
+            border: 2px solid #fff;
+            border-radius: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        #nav-next-btn { background: linear-gradient(#66bb6a, #2e7d32); }
+        #nav-right .play-btn { padding: 12px 26px; font-size: 18px; }
         .corner-btn {
             position: absolute;
             top: 12px;
@@ -462,32 +508,38 @@
 <div id="panel-toggle-strip" onclick="toggleTopPanel(false)">▲ Paneli Göster</div>
 
 <div id="start-screen">
-    <button class="corner-btn" id="btn-open-set" onclick="openSubMenu('set-screen')">⚙ Ayarlar</button>
-    <button class="corner-btn" id="btn-open-upg" onclick="openSubMenu('upg-screen')">🔧 Yükseltmeler</button>
-    <button class="corner-btn" id="btn-open-char" onclick="openSubMenu('char-screen')">🧑 Karakterler</button>
     <h1 id="screen-title">Cephede tek başına V1.3</h1>
     <div class="score-info" id="screen-score">En Yüksek Skor: <span id="start-high-score">0</span></div>
-    <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • C kamera değiştir • Fare Tekerleği: Silah Değiştir • Sağ tık (basılı tut) / N: nişangah (1. şahıs; Glock, Desert Eagle, M-60) • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
-    
-    <div class="map-container" id="map-container">
-        <button class="map-btn selected" id="map-park" onclick="setGameMap('park')">Kentleşmiş Park</button>
-        <button class="map-btn" id="map-kanal" onclick="setGameMap('kanal')">Kanalizasyon</button>
-        <button class="map-btn" id="map-sehir" onclick="setGameMap('sehir')">Şehir İçi</button>
+
+    <div class="menu-page active" id="page-main">
+        <button class="menu-big mb-sp" onclick="menuOpenSP()">🎯 Tek Oyunculu</button>
+        <button class="menu-big mb-mp" onclick="menuOpenMP()">🌐 Çok Oyunculu</button>
+        <button class="menu-big mb-char" onclick="openSubMenu('char-screen')">🧑 Karakterler</button>
+        <button class="menu-big mb-upg" onclick="openSubMenu('upg-screen')">🔧 Yükseltmeler</button>
+        <button class="menu-big mb-set" onclick="openSubMenu('set-screen')">⚙ Ayarlar</button>
+        <div style="font-size:13px;color:#bbb;margin-bottom:12px;text-align:center;max-width:90%;line-height:1.5">1. şahıs: fareyle bak (ekrana tıkla) • WASD / ok tuşları yürü • sol tık ateş • C kamera değiştir • Fare Tekerleği: Silah Değiştir • Sağ tık (basılı tut) / N: nişangah (1. şahıs; Glock, Desert Eagle, M-60) • P duraklat<br>Dokunmatik: boş alanı sürükleyerek bak</div>
     </div>
 
-    <div class="mode-container">
-        <button class="mode-btn selected" id="mode-normal" onclick="setGameMode('normal')">Normal Mod</button>
-        <button class="mode-btn" id="mode-hard" onclick="setGameMode('hard')">🔥 Zor Mod (Sadece Boss)</button>
-        <button class="mode-btn" id="mode-ultra" onclick="setGameMode('ultra')">💀 Ultra Zor Mod (Siyah Mega Boss)</button>
-        <button class="mode-btn" id="mode-wave" onclick="setGameMode('wave')">🌊 Dalga Modu</button>
-        <button class="mode-btn" id="mode-mp" onclick="setGameMode('mp')">🌐 Çok Oyunculu (1v1)</button>
+    <div class="menu-page" id="page-sp">
+        <button class="menu-big mode-btn selected" id="mode-normal" onclick="setGameMode('normal')">Normal Mod</button>
+        <button class="menu-big mode-btn" id="mode-hard" onclick="setGameMode('hard')">🔥 Zor Mod (Sadece Boss)</button>
+        <button class="menu-big mode-btn" id="mode-ultra" onclick="setGameMode('ultra')">💀 Ultra Zor Mod (Siyah Mega Boss)</button>
+        <button class="menu-big mode-btn" id="mode-wave" onclick="setGameMode('wave')">🌊 Dalga Modu</button>
+        <div class="wave-container" id="wave-settings-box" style="display:none;">
+            <span style="font-weight:bold; font-size:16px; color:#ffeb3b;">Toplam Dalga Sayısı:</span>
+            <input type="number" id="wave-input" class="wave-input-box" value="3" min="1" max="20">
+        </div>
     </div>
 
-    <div class="wave-container" id="wave-settings-box" style="display:none;">
-        <span style="font-weight:bold; font-size:16px; color:#ffeb3b;">Toplam Dalga Sayısı:</span>
-        <input type="number" id="wave-input" class="wave-input-box" value="3" min="1" max="20">
+    <div class="menu-page" id="page-map">
+        <div class="map-container" id="map-container">
+            <button class="menu-big map-btn selected" id="map-park" onclick="setGameMap('park')">Kentleşmiş Park</button>
+            <button class="menu-big map-btn" id="map-kanal" onclick="setGameMap('kanal')">Kanalizasyon</button>
+            <button class="menu-big map-btn" id="map-sehir" onclick="setGameMap('sehir')">Şehir İçi</button>
+        </div>
     </div>
 
+    <div class="menu-page" id="page-mp">
     <div id="mp-panel" style="display:none; flex-direction:column; align-items:center; gap:10px; margin-bottom:15px; max-width:92%;">
         <div id="mp-menu" class="mode-container" style="margin-bottom:0;">
             <button class="mode-btn" onclick="mpHost()">🏠 Oda Kur</button>
@@ -502,8 +554,13 @@
             <button class="mode-btn" id="mp-leave-btn" onclick="mpLeave()">✖ Ayrıl</button>
         </div>
     </div>
+    </div>
 
-    <button class="play-btn" id="start-btn" onclick="startGame()">OYUNU BAŞLAT</button>
+    <div id="nav-left" class="nav-corner"><button class="nav-btn" id="nav-back-btn" onclick="menuBack()">← Geri</button></div>
+    <div id="nav-right" class="nav-corner">
+        <button class="nav-btn" id="nav-next-btn" onclick="menuNext()">İleri →</button>
+        <button class="play-btn" id="start-btn" onclick="startGame()">OYUNU BAŞLAT</button>
+    </div>
 </div>
 
 <div id="pause-screen">
@@ -672,8 +729,6 @@ function setGameMode(mode) {
     const nowMp = (mode === 'mp');
     if (wasMp && !nowMp) { mpCleanup(); mpResult = null; }
     mpActive = nowMp;
-    document.getElementById('map-container').style.display = nowMp ? 'none' : 'flex';
-    startBtn.style.display = nowMp ? 'none' : '';
     if (wasMp !== nowMp) {
         if (!nowMp) mpRestoreSpWeapon();
         initMapObjects();
@@ -687,6 +742,44 @@ function setGameMode(mode) {
     mpSetStatus(nowMp && !mpPeer ? 'Oda kur ve kodu arkadaşına gönder ya da gelen kodla katıl.' : '');
     mpApplyUI();
     mpRenderPanel();
+}
+
+// --- ana menü sayfaları ---
+let menuPage = 'main';
+function showMenuPage(p, keepMsg) {
+    menuPage = p;
+    ['main', 'sp', 'map', 'mp'].forEach(n => {
+        document.getElementById('page-' + n).classList.toggle('active', n === p);
+    });
+    document.getElementById('nav-left').style.display = (p === 'main') ? 'none' : 'flex';
+    document.getElementById('nav-back-btn').textContent = (p === 'mp') ? '🏠 Ana Menüye Dön' : '← Geri';
+    document.getElementById('nav-right').style.display = (p === 'sp' || p === 'map') ? 'flex' : 'none';
+    document.getElementById('nav-next-btn').style.display = (p === 'sp') ? '' : 'none';
+    startBtn.style.display = (p === 'map') ? '' : 'none';
+    if (!keepMsg && !mpActive) {
+        screenTitle.textContent = 'Cephede tek başına V1.3';
+        screenScore.innerHTML = 'En Yüksek Skor: <span id="start-high-score">' + highScore + '</span>';
+    }
+}
+function menuOpenSP() {
+    setGameMode(currentGameMode === 'mp' ? 'normal' : currentGameMode);
+    showMenuPage('sp');
+}
+function menuOpenMP() {
+    setGameMode('mp');
+    showMenuPage('mp');
+}
+function menuNext() {
+    if (menuPage === 'sp') showMenuPage('map');
+}
+function menuBack() {
+    if (menuPage === 'map') showMenuPage('sp');
+    else if (menuPage === 'sp') showMenuPage('main');
+    else if (menuPage === 'mp') {
+        mpLeave();
+        setGameMode('normal');
+        showMenuPage('main');
+    }
 }
 
 function setGameMap(map) {
@@ -2793,8 +2886,8 @@ function update() {
             isGameOver = true;
             screenTitle.textContent = "TEBRİKLER! DALGALARI BİTİRDİN!";
             screenScore.innerHTML = "Toplam Kazanılan Altın: +" + pendingWaveGold + " 🪙 | Skorun: " + player.score;
-            startBtn.textContent = "YENİDEN BAŞLAT";
             startScreen.style.display = "flex";
+            showMenuPage('main', true);
             return;
         } else {
             wavePromptScreen.style.display = "flex";
@@ -2830,8 +2923,8 @@ function update() {
 
         screenTitle.textContent = "OYUN BİTTİ!";
         screenScore.innerHTML = "Skorun: " + player.score + " | En Yüksek Skor: " + highScore;
-        startBtn.textContent = "YENİDEN BAŞLAT";
         startScreen.style.display = "flex";
+        showMenuPage('main', true);
         return;
     }
 
@@ -3030,6 +3123,7 @@ function onWavePromptChoice(choice) {
         goldEl.textContent = gold;
         localStorage.setItem("cephedeGold", gold);
         startScreen.style.display = "flex";
+        showMenuPage('main', true);
         isGameStarted = false;
     } else if (choice === 'devam') {
         currentWave++;
@@ -3427,6 +3521,7 @@ function mpDisplayResult() {
     }
     screenScore.textContent = winMsg + (mpConnected ? 'Bağlantı açık — yeni maçı oda kurucusu başlatır (harita rastgele).' : 'Bağlantı kapandı.');
     startScreen.style.display = 'flex';
+    showMenuPage('mp', true);
     mpApplyUI();
     mpRenderPanel();
 }
@@ -3459,6 +3554,7 @@ function mpLeave() {
     screenTitle.textContent = 'Cephede tek başına V1.3';
     screenScore.textContent = 'Arkadaşınla 1v1 savaş • harita rastgele seçilir';
     mpSetStatus('Oda kur ve kodu arkadaşına gönder ya da gelen kodla katıl.');
+    showMenuPage('mp', true);
     mpApplyUI();
     mpRenderPanel();
 }
@@ -3493,6 +3589,7 @@ setHumanColor(remote3d, remoteColorFor('sevket'));
 refreshGoldLive();
 
 mpApplyUI();
+showMenuPage('main');
 
 gameLoop();
 </script>
